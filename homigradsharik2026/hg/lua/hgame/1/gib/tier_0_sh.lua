@@ -1,0 +1,1 @@
+gibParticles = gibParticles or {}

@@ -1,0 +1,97 @@
+keyboard.DefaultBindCode("fake",30,true)
+
+event.Add("Player Spawn","Other",function(ply)
+	ply:AddEFlags(EFL_NO_DAMAGE_FORCES)
+	ply:RemoveAllDecals()
+end)
+
+//
+
+local delays = {}
+
+event.Add("Death","RemoveNPClientRagdoll",function(dmgTab)
+    local ent = dmgTab.target
+
+    if not IsValid(ent) or not ent:IsNPC() then return end
+
+    local pos = ent:GetPos()
+    local mdl = ent:GetModel()
+
+    delays[#delays + 1] = {mdl,pos,RealTime() + LocalPlayer():Ping() + 0.05}
+end)
+
+hook.Add("Think","RemoveNPCClientRagdoll",function()
+    local time = RealTime()
+    
+    for id,info in pairs(delays) do
+        local mdl = info[1]
+
+        for i,ent in pairs(ents.FindInSphere(info[2],128)) do
+            if ent:GetClass() == "class C_ClientRagdoll" and ent:GetModel() == mdl then ent:Remove() end
+        end
+
+        if info[3] < time then delays[id] = nil continue end
+    end
+end)
+
+//
+
+local math_hand1 = Material("icon32/hand_point_180.png")
+local math_hand2 = Material("icon32/hand_point_090.png")
+
+local Clamp = math.Clamp
+
+hook.Add("HUDPaint","Fake",function()
+    local ply = LocalPlayer()
+    if not ply:GetNWBool("Fake") or GetViewEntity() != ply then return end
+
+    surface.SetDrawColor(255,255,255,255)
+
+    local rag = ply:GetDummy()
+    if rag == ply then return end
+    
+    local w,h = ScrW(),ScrH()
+
+    if ply:GetNW2Bool("LeftArm") then
+        local mat = rag:GetBoneMatrix(rag:LookupBone("ValveBiped.Bip01_L_Hand"))
+        local pos = (mat:GetTranslation():Add(Vector(6,-3,0):Rotate(mat:GetAngles()))):ToScreen()
+        pos.x = Clamp(pos.x,w / 2 - w / 4,w / 2 + w / 4)
+        pos.y = Clamp(pos.y,h / 2 - h / 4,h / 2 + h / 4)
+
+        surface.SetMaterial(math_hand2)
+        surface.DrawTexturedRectRotated(pos.x,pos.y,64,64,-90 + 25)
+    end
+
+    if ply:GetNW2Bool("RightArm") then
+        local mat = rag:GetBoneMatrix(rag:LookupBone("ValveBiped.Bip01_R_Hand"))
+        local pos = (mat:GetTranslation():Add(Vector(6,-3,0):Rotate(mat:GetAngles()))):ToScreen()
+        pos.x = Clamp(pos.x,w / 2 - w / 4,w / 2 + w / 4)
+        pos.y = Clamp(pos.y,h / 2 - h / 4,h / 2 + h / 4)
+
+        surface.SetMaterial(math_hand1)
+        surface.DrawTexturedRectRotated(pos.x,pos.y,-64,-64,180 - 25)
+    end
+
+    local wep = ply:GetActiveWeapon()
+
+    local pos = EyePos() + ply:EyeAngles():Forward() * 8000
+    pos = pos:ToScreen()
+
+    pos.x = Clamp(pos.x,w / 2 - w / 3,w / 2 + w / 3)
+    pos.y = Clamp(pos.y,h / 2 - h / 3,h / 2 + h / 3)
+    
+    local dis = math.Distance(pos.x,pos.y,w / 2,h / 2) / (h / 2)
+
+    local a = 25 + dis * 255
+
+    local size = math.max(dis * 32,6)
+
+    if IsValid(wep) and wep:GetClass() ~= "weapon_hands" then a = a * 0.35 end
+end)
+
+cvars.CreateReplicateOption("hg_ragdoll_always_e","1")
+cvars.CreateReplicateOption("hg_ragdoll_cave_spine","1")
+
+hook.Add("HandlePlayerSwimming","!Remove",function()
+    return false
+end)

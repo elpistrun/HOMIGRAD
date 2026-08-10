@@ -1,0 +1,143 @@
+local SWEP = oop.Get("wep_pk")
+if not SWEP then return end
+
+SWEP.AnimationList = {
+    ["deploy"] = {
+        index = 6,
+        delay = 2.2,
+        skip = 0.7,
+
+        deploy = true,--tag
+
+        sound = {
+            [0.4] = {{"weapons/eft/pkm/pk_charge_in.ogg",75,0.4}},
+            [0.55] = {{"weapons/eft/pkm/pk_charge_out.ogg",75,0.4}},
+        },
+
+        grabLeftHand = {[0] = false},
+    },
+    ["holster"] = {
+        index = 8,
+        delay = 1,
+
+        endless = true,
+
+        holster = true--tag
+    },
+
+    ["fire1"] = {
+        index = 9,
+        delay = 0.2,
+        startCycle = 0.5,
+
+        noFight = true,--tag
+        fire = true
+    },
+
+    ["fire2"] = {
+        index = 10,
+        delay = 0.2,
+        startCycle = 0.5,
+
+        noFight = true,--tag
+        fire = true
+    },
+
+    ["fire_empty"] = {
+        index = 14,
+        delay = 0.1,
+
+        noFight = true,
+        fire = true
+    },
+
+    ["unload_magazine"] = {
+        index = 16,
+        delay = 4,
+
+        endCycle = 0.5,
+
+        sound = {
+            [0] = {{"weapons/eft/pkm/pk_mag_flip_1.ogg",75,0.4}},
+            [0.1] = {{"weapons/eft/pkm/pk_mag_flip_2.ogg",75,0.4}},
+            
+            [0.15] = {{"weapons/eft/pkm/pk_dust_open.ogg",75,0.4}},
+
+            [0.25] = {{"weapons/eft/pkm/pk_mag_out.ogg",75,0.4}},
+            
+            [0.3] = {{"weapons/eft/pkm/pk_gun_flip_4.ogg",75,0.4}},
+            [0.4] = {{"weapons/eft/pkm/pk_gun_flip_3.ogg",75,0.4}},
+            
+            [0.6] = {{"weapons/eft/pkm/pk_gun_flip_3.ogg",75,0.4}},
+
+            [0.75] = {{"weapons/eft/pkm/pk_mag_in.ogg",75,0.4}},
+     
+            [0.85] = {{"weapons/eft/pkm/pk_sight_mount_out.ogg",75,0.4}},
+        },
+
+        grabLeftHand = {[0] = false},
+    },
+
+    ["load_magazine"] = {
+        index = 16,
+        delay = 4,
+
+        startCycle = 0.5,
+
+        sound = {
+            [0] = {{"weapons/eft/pkm/pk_mag_flip_1.ogg",75,0.4}},
+            [0.1] = {{"weapons/eft/pkm/pk_mag_flip_2.ogg",75,0.4}},
+            
+            [0.15] = {{"weapons/eft/pkm/pk_dust_open.ogg",75,0.4}},
+
+            [0.25] = {{"weapons/eft/pkm/pk_mag_out.ogg",75,0.4}},
+            
+            [0.3] = {{"weapons/eft/pkm/pk_gun_flip_4.ogg",75,0.4}},
+            [0.4] = {{"weapons/eft/pkm/pk_gun_flip_3.ogg",75,0.4}},
+            
+            [0.6] = {{"weapons/eft/pkm/pk_gun_flip_3.ogg",75,0.4}},
+
+            [0.75] = {{"weapons/eft/pkm/pk_mag_in.ogg",75,0.4}},
+     
+            [0.85] = {{"weapons/eft/pkm/pk_sight_mount_out.ogg",75,0.4}},
+        },
+
+        drawAmmo = {
+            [0] = true,
+        },
+
+        grabLeftHand = {[0] = false},
+    },
+    
+    ["chamber"] = {
+        index = 6,
+        delay = 1.8,
+
+        startCycle = 0.25,
+
+        sound = {
+            [0.39] = {{"weapons/eft/pkm/pk_charge_in.ogg",75,0.4}},
+            [0.55] = {{"weapons/eft/pkm/pk_charge_out.ogg",75,0.4}},
+        },
+
+        grabLeftHand = {[0] = false},
+    },
+
+    ["inspect"] = {
+        index = 40,
+        delay = 4,
+
+        noFight = true,
+        dontShake = true
+    }
+}
+
+SWEP.AnimationInspectList = {
+    "inspect"
+}
+
+function SWEP:AttackAnimation()
+    self.attackAnimMode = not self.attackAnimMode
+
+    self:PlayAnimation(self.attackAnimMode and "fire1" or "fire2")
+end

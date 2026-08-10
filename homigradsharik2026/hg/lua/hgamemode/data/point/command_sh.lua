@@ -1,0 +1,5 @@
+adminPanel.commandRegistry("point",{{type = "string",name = "Имя точки"},{type = "number",name = "Радиус"},{type = "string",name = "Дополнительная информация"}},"game",nil,"mapData")
+adminPanel.commandRegistry("pointremove",{{type = "string",name = "Имя точки"},{type = "number",name = "ID Точки"}},"game",nil,"mapData")
+adminPanel.commandRegistry("pointclear",{{type = "string",name = "Имя точек"}},"game",nil,"mapData")
+adminPanel.commandRegistry("pointpage",{{type = "string",name = "Имя страницы"}},"game",nil,"mapData")
+adminPanel.commandRegistry("points",{},"game",nil,"mapData")
