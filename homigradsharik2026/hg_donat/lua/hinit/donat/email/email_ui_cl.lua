@@ -21,7 +21,7 @@ local empty = {}
 function Page.GetNotifications()
     local count = 0 
 
-    for id,email in pairs(emailManager.listData[AccountSteamID64]) do
+    for id,email in pairs(emailManager.listData[AccountSteamID64] or empty) do
         if not email.is_read then count = count + 1 end
     end
 
@@ -206,7 +206,7 @@ function Page.Open(frame)
     function listEmails:Update()
         listEmails:Clear()
 
-        local list = emailManager.listData[AccountSteamID64]
+        local list = emailManager.listData[AccountSteamID64] or empty
         local sort = {}
 
         for k,v in pairs(list) do
@@ -301,8 +301,11 @@ function Page.Open(frame)
     end
 
     function butt:Create()
-        if not emailManager.listData[AccountSteamID64]["1"] then
-            emailManager.listData[AccountSteamID64]["1"] = {
+        local listEmailsData = emailManager.listData[AccountSteamID64] or {}
+        emailManager.listData[AccountSteamID64] = listEmailsData
+
+        if not listEmailsData["1"] then
+            listEmailsData["1"] = {
                 content = {
                     name = "Example",
                     desc = "Desc",

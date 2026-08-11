@@ -20,9 +20,9 @@ cvars.permamentConsoleVars = {
 function cvars.SetPermament(name,def)
     cvars.permamentConsoleVars[name] = def
     
-    cvars.AddChangeCallback(name,function() RunConsoleCommand(name,def) end,"go back")
+    cvars.AddChangeCallback(name,function() pcall(RunConsoleCommand,name,def) end,"go back")
 
-    RunConsoleCommand(name,def)
+    pcall(RunConsoleCommand,name,def)
 end
 
 function cvars.UpdatePermamentConsoleVars()

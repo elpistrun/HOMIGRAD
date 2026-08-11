@@ -18,6 +18,7 @@ local mat_speaker_3 = Material( "homigrad/vgui/icons/speaker/voice_3.png","nocla
 local mat_speaker_mute = Material( "homigrad/vgui/icons/speaker/voice_mute.png","noclamp smooth")
 
 local color_gray = Color(125,125,125)
+local white = Color(255,255,255,255)
 local empty = {}
 
 function scoreboard.DrawPlayer(ply,w,h,tbl,self)
@@ -50,11 +51,17 @@ function scoreboard.DrawPlayer(ply,w,h,tbl,self)
             draw.GradientLeft(0,0,w / 4,h)
         end
 
-        --draw.SimpleText(L(alive),font,h / 2,h / 2,colorAlive,TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
+        draw.SimpleText(L(alive),font,h / 2,h / 2,colorAlive,TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
     end
 
     local nameGroup = ply:GetUserName()
-    local color = ply:GetUserColor()
+
+    if not nameGroup then
+        local group = adminPanelRole.GetStockUserGroup and adminPanelRole.GetStockUserGroup(ply)
+        nameGroup = group or "user"
+    end
+
+    local color = ply:GetUserColor() or white
 
     if color then
         if not tbl.dontDrawGroup then
@@ -62,10 +69,12 @@ function scoreboard.DrawPlayer(ply,w,h,tbl,self)
                 SetDrawColor(color)
                 DrawRect(0,h - 2,w,2)
                 
+                local xPos = tbl.dontDrawAlive and h / 2 or w * 0.25
+
                 if tbl.dontDrawAlive then
-                    draw.SimpleText(nameGroup,font,h / 2,h / 2,ply:GetNWBool("DontShowMyPerm") and color_gray or color,TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
+                    draw.SimpleText(nameGroup,font,xPos,h / 2,ply:GetNWBool("DontShowMyPerm") and color_gray or color,TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
                 else
-                    draw.SimpleText(nameGroup,font,w * 0.25,h / 2,ply:GetNWBool("DontShowMyPerm") and color_gray or color,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+                    draw.SimpleText(nameGroup,font,xPos,h / 2,ply:GetNWBool("DontShowMyPerm") and color_gray or color,TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER)
                 end
 
                 SetDrawColor(color.r / 4,color.g / 4,color.b / 4,75)
@@ -89,13 +98,13 @@ function scoreboard.DrawPlayer(ply,w,h,tbl,self)
 
         if tbl.dontDrawTeam then
             if hours then
-                draw.SimpleText(hours .. " h",font,w - h / 2,h / 2,nil,TEXT_ALIGN_RIGHT,TEXT_ALIGN_CENTER)
+                draw.SimpleText(hours .. "h",font,w - h / 2,h / 2,nil,TEXT_ALIGN_RIGHT,TEXT_ALIGN_CENTER)
             else
                 DrawLoading(w - h / 2,h / 2,h / 2,h / 2)
             end
         else
             if hours then
-                draw.SimpleText(hours .. " h",font,w * 0.7,h / 2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+                draw.SimpleText(hours .. "h",font,w * 0.7,h / 2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
             else
                 DrawLoading(w * 0.7,h / 2,h / 2,h / 2)
             end
@@ -121,6 +130,14 @@ local discord_icon = Material("homigrad/discord_icon.png")
 
 function ScoreboardAddPlayerHTML(html,ply,tab)
     local p,avatar = html:AddPlayer(ply)
+
+    local avatarImage = oop.CreatePanel("v_avatarimage",avatar):ad(function(self,w,h)
+        local size = scoreboard.iconSize
+        local wide = size * 0.25
+        self:setSize(size,size):setPos(wide,wide)
+    end)
+    if IsValid(ply) then avatarImage:SetPlayer(ply,184) end
+    if avatarImage.SetPaintCorner then avatarImage:SetPaintCorner(2) end
 
     function avatar:Draw(w,h)
         plyVoice.Draw(w,h,ply,1)

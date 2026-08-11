@@ -223,7 +223,9 @@ function PANEL:Set(id,fast)
     
     self:Update()
 
-    if self.list[id].callback then self.list[id].callback() end
+    if not fast then
+        if self.list[id].callback then self.list[id].callback() end
+    end
 
     if self.OnSet then self:OnSet(id,self.list[id].text) end
 

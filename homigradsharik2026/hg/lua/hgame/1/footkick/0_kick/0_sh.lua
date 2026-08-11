@@ -101,3 +101,43 @@ function ANM:ParseTrace(tr)
 
     return tr
 end
+
+if SERVER then
+    ANM.Damage = 25
+    ANM.Force = 250
+
+    function ANM:AttackServer(result)
+        local ply = self.parent
+        if not IsValid(ply) then return end
+
+        local hitEntity = result.Entity
+        if not IsValid(hitEntity) or hitEntity == ply then return end
+
+        local entity = hitEntity:GetController() or hitEntity
+
+        local pos = result.HitPos
+        local surfaceName = surfaceWorld.GetSurfaceName(result.SurfaceProps)
+
+        if util.IsHumanoid(entity) then
+            sound.EmitNET(hitEntity,"physics/body/body_medium_impact_hard" .. math.random(5,6) .. ".wav",75,1,90,pos)
+        else
+            sound.EmitNET(hitEntity,"physics/body/body_medium_impact_hard" .. math.random(1,3) .. ".wav",75,1,100,pos)
+        end
+
+        local dmgTab = CreateDamageTab(entity,ply,ply:GetActiveWeapon(),self.Damage,DMG_CLUB)
+        dmgTab.isMelee = true
+        dmgTab.pos = pos
+        dmgTab.ent = hitEntity
+        dmgTab.bone = result.HitBone
+
+        local force = (result.Normal or Vector(1,0,0)) * self.Force
+
+        dmgTab.force = force
+        dmgTab.forcePhys = force
+        dmgTab.forcePhysRagdoll = force * 10
+
+        DamageTab_ParseBone(dmgTab)
+
+        entity:TakeDamageTab(dmgTab)
+    end
+end

@@ -303,13 +303,11 @@ function PLAYER:GetTimeStatus()
     else
         time = math.floor(time + (CurTime() - self:GetNWFloat("TimeStart",0)))
 
-        local result = time / 60 / 60
-        local octatok = math.floor(result) % 10
+        local hours = math.floor(time / 60 / 60)
+        local minutes = string.format("%02d",math.floor(time / 60) % 60)
 
-        return math.floor(result) .. (octatok > 0 and ("," .. octatok) or "")
+        if string.sub(minutes,2,2) == "0" then minutes = string.sub(minutes,1,1) end
 
-        --local dTime,hTime,mTime = math.floor(time / 60 / 60 / 24),(math.floor(time / 60 / 60) % 24),tostring(math.floor(time / 60) % 60)
-
-        --return dTime,hTime,mTime
+        return hours .. "." .. minutes
     end
 end

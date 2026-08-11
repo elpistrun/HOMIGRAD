@@ -177,6 +177,19 @@ cvars.CreateOption("hg_test_hovered_panel","0",function(value)
 
             surface.SetDrawColor(255,0,0,125)
             surface.DrawRect(x,y,panel:GetWide(),panel:GetTall())
+
+            local x2,y2 = panel:LocalToScreen(panel:GetWide(),panel:GetTall())
+
+            local parents = {}
+            local p = panel
+            for i = 1,12 do
+                if not IsValid(p) then parents[#parents + 1] = "ROOT" break end
+                parents[#parents + 1] = p.GetClassName and p:GetClassName() or p.ClassName or "?"
+                p = p:GetParent()
+            end
+
+            surface.SetDrawColor(255,255,255)
+            draw.SimpleText("class: " .. (panel:GetClassName() or panel.ClassName or "?") .. " xy: " .. math.Round(x) .. "," .. math.Round(y) .. " wh: " .. panel:GetWide() .. "x" .. panel:GetTall() .. " parents: " .. table.concat(parents," > "),"H.14",x + 4,y + 4,Color(255,255,0),TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
         end)
     else
         hook.Remove("DrawOverlay","TEST HOVERED PANEL")

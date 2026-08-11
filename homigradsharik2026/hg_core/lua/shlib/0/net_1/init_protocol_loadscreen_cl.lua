@@ -50,16 +50,21 @@ local function SkipProtocol()
     gui.EnableScreenClicker(false)
 end
 
-local descDefault = markup.Parse("<font=H25>Если ничего не происходит минуту, возможно что-то произошло с сервером.\nЕсли это так, то сообщите об этом на нашем дискорд сервере (ссылка на дискорд на сайте https://homigrad.com)</font>")
+local descText = "Если ничего не происходит минуту, возможно что-то произошло с сервером.\nЕсли это так, то сообщите об этом на нашем дискорд сервере (ссылка на дискорд на сайте https://homigrad.com)"
+
+local function ParseDesc()
+    local ok,markup = pcall(markup.Parse,"<font=H25>" .. descText .. "</font>")
+    if ok then return markup end
+end
+
+local descDefault = ParseDesc()
 
 event.Add("Screen Size","initProtocol",function()
-    descDefault = markup.Parse("<font=H25>Если ничего не происходит минуту, возможно что-то произошло с сервером.\nЕсли это так, то сообщите об этом на нашем дискорд сервере (ссылка на дискорд на сайте https://homigrad.com)</font>")
+    descDefault = ParseDesc()
 end)
 
 event.Add("RenderScene","Load Screen",function()
     if InitNET then
-        gui.EnableScreenClicker(false)
-
         return
     end
 
@@ -139,7 +144,7 @@ event.Add("RenderScene","Load Screen",function()
         
         if initProtocol_3_Desc then
             initProtocol_3_Desc:Draw(w/2,h - h / 6,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER,25,TEXT_ALIGN_CENTER)
-        else
+        elseif descDefault then
             descDefault:Draw(w/2,h - h / 6,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER,25,TEXT_ALIGN_CENTER)
         end
 

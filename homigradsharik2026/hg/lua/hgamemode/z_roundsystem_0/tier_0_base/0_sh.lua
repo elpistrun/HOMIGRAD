@@ -21,6 +21,7 @@ end
 function Level:StartShared() end
 function Level:StartServer() end
 function Level:StartClient() end
+function Level:SetupFMTeams() end
 
 function Level:End(data)
     self:EndShared(data)

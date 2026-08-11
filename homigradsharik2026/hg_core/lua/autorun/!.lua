@@ -17,6 +17,8 @@ print("\tslib end")
 
 SafeIncludeDir("hlocalize/")
 
+SafeIncludeDir("addons/hg/lua/hlocalize/")
+
 print("\thomigrad admin panel start.")
     SafeIncludeDir("hadminpanel/")
 print("\thomigrad admin panel end.")

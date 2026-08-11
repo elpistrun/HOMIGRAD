@@ -25,6 +25,16 @@ end)
 
 local empty = {}
 
+local PlayerMeta = FindMetaTable("Player")
+local stockGetUserGroup = PlayerMeta.GetUserGroup
+
+adminPanelRole.GetStockUserGroup = stockGetUserGroup
+
+local function isStockAdmin(ply)
+    local group = stockGetUserGroup(ply)
+    return group == "superadmin" or group == "admin" or group == "owner"
+end
+
 function adminPanelRole.HasSuccess(ply,successName)
     if not IsValid(ply) or not ply.SteamID64 then return false end
 
@@ -42,6 +52,8 @@ function adminPanelRole.HasSuccess(ply,successName)
 
     local success = adminPanelRole.list["user"].content.success[successName]
     if success then return success end
+
+    if isStockAdmin(ply) then return true end
 
     return false
 end
