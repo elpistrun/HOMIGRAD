@@ -41,8 +41,6 @@ SWEP:Event_Add("PreAction","Fight",function(self,cmd)
     if not result then return false,"CanFight: " .. tostring(err) end
 end,1)
 
-if SERVER then return end
-
 function SWEP:GetSequenceEndCycle(sequenceObject)
     return math.max(sequenceObject.load or 1,sequenceObject.canSkip or 1)
 end
@@ -60,6 +58,8 @@ function SWEP:CanFightSequence(callType)
 
     return true
 end
+
+if SERVER then return end
 
 SWEP:Event_Add("Action","CanFight",function(self,cmd)
     if not self:CanFightGeneral() then return false,"cantFightGeneral" end

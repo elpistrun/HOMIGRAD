@@ -85,3 +85,115 @@ ExplosiveModel = {
     ["models/tadano/fumo/pack/yuyu.mdl"] = true,
     ["models/tadano/fumo/pack/remilia.mdl"] = true
 }
+
+if SERVER then
+    local function CanSpawn(ply)
+        return IsValid(ply) and ply:HasSuccess("spawnmenu_access") or false
+    end
+
+    local function GetSpawnPos(ply)
+        return ply:EyePos() + ply:GetAimVector() * 80
+    end
+
+    concommand.Add("gm_giveswep",function(ply,_,args)
+        if not CanSpawn(ply) then return end
+
+        local class = args[1]
+        if not class or class == "" then return end
+
+        if not weapons.Get(class) then return end
+
+        ply:Give(class)
+    end)
+
+    concommand.Add("gm_spawnswep",function(ply,_,args)
+        if not CanSpawn(ply) then return end
+
+        local class = args[1]
+        if not class or class == "" then return end
+
+        if not weapons.Get(class) then return end
+
+        local ent = ents.Create(class)
+        if not IsValid(ent) then return end
+
+        ent:SetPos(GetSpawnPos(ply))
+        ent:Spawn()
+        ent:Activate()
+
+        local physics = ent:GetPhysicsObject()
+        if IsValid(physics) then physics:Wake() end
+    end)
+
+    concommand.Add("gm_spawnsent",function(ply,_,args)
+        if not CanSpawn(ply) then return end
+
+        local class = args[1]
+        if not class or class == "" then return end
+
+        local ent = ents.Create(class)
+        if not IsValid(ent) then return end
+
+        ent:SetPos(GetSpawnPos(ply))
+        ent:Spawn()
+        ent:Activate()
+
+        local physics = ent:GetPhysicsObject()
+        if IsValid(physics) then physics:Wake() end
+    end)
+
+    concommand.Add("gm_spawnvehicle",function(ply,_,args)
+        if not CanSpawn(ply) then return end
+
+        local class = args[1]
+        if not class or class == "" then return end
+
+        local ent = ents.Create(class)
+        if not IsValid(ent) then return end
+
+        ent:SetPos(GetSpawnPos(ply))
+        ent:Spawn()
+        ent:Activate()
+    end)
+
+    concommand.Add("gm_spawnnpc",function(ply,_,args)
+        if not CanSpawn(ply) then return end
+
+        local class = args[1]
+        if not class or class == "" then return end
+
+        local ent = ents.Create(class)
+        if not IsValid(ent) then return end
+
+        ent:SetPos(GetSpawnPos(ply))
+        ent:Spawn()
+        ent:Activate()
+
+        local weapon = args[2]
+        if weapon and weapon != "" then ent:Give(weapon) end
+    end)
+
+    concommand.Add("hg_spawn",function(ply,_,args)
+        if not CanSpawn(ply) then return end
+
+        local entClass = args[1]
+        local dataName = args[2]
+        if not entClass or entClass == "" then return end
+
+        local ent = ents.Create(entClass)
+        if not IsValid(ent) then return end
+
+        ent:SetPos(GetSpawnPos(ply))
+        ent:Spawn()
+
+        if dataName and dataName != "" then
+            if ent.SetAmmoName then ent:SetAmmoName(dataName) end
+            if ent.SetAttachmentName then ent:SetAttachmentName(dataName) end
+        end
+
+        ent:Activate()
+
+        local physics = ent:GetPhysicsObject()
+        if IsValid(physics) then physics:Wake() end
+    end)
+end

@@ -304,10 +304,12 @@ function PLAYER:GetTimeStatus()
         time = math.floor(time + (CurTime() - self:GetNWFloat("TimeStart",0)))
 
         local hours = math.floor(time / 60 / 60)
-        local minutes = string.format("%02d",math.floor(time / 60) % 60)
+        local minutes = math.floor(time / 60) % 60
 
-        if string.sub(minutes,2,2) == "0" then minutes = string.sub(minutes,1,1) end
+        if minutes > 0 and minutes % 10 == 0 then
+            return hours .. "." .. math.floor(minutes / 10)
+        end
 
-        return hours .. "." .. minutes
+        return tostring(hours)
     end
 end

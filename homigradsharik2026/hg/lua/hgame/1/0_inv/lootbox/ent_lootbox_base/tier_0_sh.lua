@@ -20,6 +20,36 @@ ENT.h = 1
 
 function ENT:GetRandomCount() return math.random(2,4) end
 
+local fallbackModel = "models/props_junk/wood_crate001a.mdl"
+
+function ENT:Initialize()
+    local model = self.WorldModel
+
+    if not model or not util.IsValidModel(model) then
+        ErrorNoHalt("[HG] Invalid lootbox model for " .. tostring(self:GetClass()) .. ": " .. tostring(model) .. "; using " .. fallbackModel .. "\n")
+        model = fallbackModel
+    end
+
+    self:SetModel(model)
+    self:SetSkin(self.WorldSkin or 0)
+
+    if self.WorldMaterial then self:SetMaterial(self.WorldMaterial) end
+    if self.WorldScale then self:SetModelScale(self.WorldScale) end
+    if self.WorldColor then self:SetColor(self.WorldColor) end
+
+    if SERVER then
+        self:SetMoveType(MOVETYPE_VPHYSICS)
+        self:SetSolid(SOLID_VPHYSICS)
+        self:PhysicsInit(SOLID_VPHYSICS)
+
+        local phys = self:GetPhysicsObject()
+        if IsValid(phys) then phys:Wake() end
+    end
+
+    self:Event_Call("Init")
+    if self.OnInit then self:OnInit() end
+end
+
 if CLIENT then
     local white = Color(255,255,255)
 

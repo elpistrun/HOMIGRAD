@@ -2,7 +2,10 @@ local function SafeIncludeDir(path)
     if IncludeDir then
         local ok,err = pcall(IncludeDir,path)
 
-        if not ok then ErrorNoHalt(path .. "\n" .. tostring(err) .. "\n") end
+        if not ok then
+            ErrorNoHalt(path .. "\n" .. tostring(err) .. "\n")
+            if HG_ERRLOG and HG_ERRLOG.Add then HG_ERRLOG:Add("autorun",path,err) end
+        end
     end
 end
 

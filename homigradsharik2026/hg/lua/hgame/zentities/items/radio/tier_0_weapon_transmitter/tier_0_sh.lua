@@ -86,7 +86,7 @@ SWEP:Event_Add("Think","Sounds",function(self,ply)
 
         self.radioEmbient.volume = self:GetNWBool("EnableSound") and 1 or 0
     else
-        if IsValid(self.radioAmbient) then self.radioEmbient:Stop() end
+        if IsValid(self.radioEmbient) then self.radioEmbient:Stop() end
     end
 end)
 

@@ -1,15 +1,18 @@
 local SWEP = oop.Get("hg_wep")
 if not SWEP then return end
 
+-- Chamber state is gameplay state too: reload animations call this on the
+-- server. Previously the setter only existed clientside, which broke reload as
+-- soon as an animation reached its load marker.
+function SWEP:SetChamber(value)
+	self.chamber = value
+end
+
 if CLIENT then
 	function SWEP:SetChamberFromServer(data)
 		if data == "2" then self.chamber = true end
 		if data == "1" then self.chamber = false end
 		if data == "0" then self.chamber = nil end
-	end
-
-	function SWEP:SetChamber(value)
-		self.chamber = value
 	end
 end
 

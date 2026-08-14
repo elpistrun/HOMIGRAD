@@ -44,7 +44,13 @@ function SWEP:EmitSnd(snd)
     sound.Emit(self:EntIndex(),TypeID(snd) == TYPE_TABLE and snd[math.random(1,#snd)] or snd,75,1,math.random(95,105),self:GetPos())
 end
 
-function SWEP:EatValue() end
+function SWEP:EatValue(ent)
+    if not SERVER then return end
+
+    ent.hungry = math.min((ent.hungry or 10) + (self.HungryAdd or 0) / self.MaxValue,10)
+    ent.blood = math.min((ent.blood or 5000) + 30 * (self.HungryAdd or 0) / self.MaxValue,5000)
+    ent:SetStamina((ent.stamina or 100) + (self.StaminaAdd or 0) / self.MaxValue)
+end
 
 SndEat = SndEat or {}
 for i = 1,9 do SndEat[i] = "snd_jack_eat" .. i .. ".ogg" end

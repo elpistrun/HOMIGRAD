@@ -101,7 +101,7 @@ function SWEP:ConstructAnimationAction(name,funcAction,funcConstruct,writeEye)
         if writeEye then
             local serverPos,serverAng = self:GetShootMatrix()
 
-            local pos,ang,renderTime = net.ReadEyeAttack(serverPos,serverAng1)
+            local pos,ang,renderTime = net.ReadEyeAttack(serverPos,serverAng)
             cmd.pos = pos
             cmd.ang = ang
             cmd.renderTime = renderTime

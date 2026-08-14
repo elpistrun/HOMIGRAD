@@ -113,7 +113,10 @@ function IncludeDir(path,isDevPath)
 		local file = path .. tier_files[i]
 		local ok,res = pcall(includeFile,file,isDevPath or prefix == "#")
 
-		if not ok then ErrorNoHalt("\t[hg_core] error in\n\t" .. file .. "\n" .. res .. "\n") end
+		if not ok then
+			ErrorNoHalt("\t[hg_core] error in\n\t" .. file .. "\n" .. res .. "\n")
+			if HG_ERRLOG and HG_ERRLOG.Add then HG_ERRLOG:Add("loader",file,res) end
+		end
 		if res == INCLUDE_BREAK then return end
 	end
 
@@ -122,7 +125,10 @@ function IncludeDir(path,isDevPath)
 		local file = path .. files[i]
 		local ok,res = pcall(includeFile,file,isDevPath or prefix == "#")
 
-		if not ok then ErrorNoHalt("\t[hg_core] error in\n\t" .. file .. "\n" .. res .. "\n") end
+		if not ok then
+			ErrorNoHalt("\t[hg_core] error in\n\t" .. file .. "\n" .. res .. "\n")
+			if HG_ERRLOG and HG_ERRLOG.Add then HG_ERRLOG:Add("loader",file,res) end
+		end
 		if res == INCLUDE_BREAK then return end
 	end
 
@@ -131,14 +137,20 @@ function IncludeDir(path,isDevPath)
 		local dir = path .. tier_dirs[i] .. "/"
 		local ok,err = pcall(IncludeDir,dir,isDevPath or prefix == "#")
 
-		if not ok then ErrorNoHalt("\t[hg_core] error in IncludeDir\n\t" .. dir .. "\n" .. err .. "\n") end
+		if not ok then
+			ErrorNoHalt("\t[hg_core] error in IncludeDir\n\t" .. dir .. "\n" .. err .. "\n")
+			if HG_ERRLOG and HG_ERRLOG.Add then HG_ERRLOG:Add("loader",dir,err) end
+		end
 	end
 	for i = 1,#dirs do
 		local prefix = string_sub(dirs[i],1,1)
 		local dir = path .. dirs[i] .. "/"
 		local ok,err = pcall(IncludeDir,dir,isDevPath or prefix == "#")
 
-		if not ok then ErrorNoHalt("\t[hg_core] error in IncludeDir\n\t" .. dir .. "\n" .. err .. "\n") end
+		if not ok then
+			ErrorNoHalt("\t[hg_core] error in IncludeDir\n\t" .. dir .. "\n" .. err .. "\n")
+			if HG_ERRLOG and HG_ERRLOG.Add then HG_ERRLOG:Add("loader",dir,err) end
+		end
 	end
 end
 

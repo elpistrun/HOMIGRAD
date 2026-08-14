@@ -26,11 +26,13 @@ function net.GetCooldownAnimK(self,name)
     return max((self.cooldownStart[name] or 1) - delay) / delay
 end
 
-if CLIENT then
-    function net.IsCooldown(self,name)
-        return (self.cooldownStart[name] or 0) + (self.cooldownDelay[name] or 0) > UnPredictedCurTime()
-    end
+function net.IsCooldown(self,name)
+    if not self.cooldownStart then net.CooldownInit(self) end
 
+    return (self.cooldownStart[name] or 0) + (self.cooldownDelay[name] or 0) > UnPredictedCurTime()
+end
+
+if CLIENT then
     local PLAYER = FindMetaTable("Player")
 
     PLAYER.SetCooldown = net.SetCooldown

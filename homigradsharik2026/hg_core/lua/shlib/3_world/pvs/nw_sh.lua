@@ -26,9 +26,22 @@ pvsAuto.TYPE_ID = {
 local TYPE_ID_NET = {}
 pvsAuto.TYPE_ID_NET = TYPE_ID_NET
 
-for name,info in pairs(pvsAuto.TYPE_ID) do
-    TYPE_ID_NET[#TYPE_ID_NET + 1] = name
-    info.net_pkg_id = #TYPE_ID_NET
+-- pairs() has a different order on the server and client.  The old code used
+-- that order as a network id, so a table could be decoded as a bool/vector.
+local networkTypes = {
+    "none",
+    TYPE_STRING,
+    TYPE_NUMBER,
+    TYPE_TABLE,
+    TYPE_BOOL,
+    TYPE_VECTOR,
+    TYPE_ANGLE,
+    TYPE_PVS_COMPRESS_DATA
+}
+
+for id,name in ipairs(networkTypes) do
+    TYPE_ID_NET[id] = name
+    pvsAuto.TYPE_ID[name].net_pkg_id = id
 end
 
 pvsAuto.InitPVS = function(self)
@@ -64,6 +77,7 @@ pvsAuto.SetPVSVar = function(self,name,value,typeValue)
         self.pvsVarsValues[name] = varValue
     end
 
+    local oldValue = varValue.value
     varValue.value = value
     varValue.type = typeValue
 
@@ -77,7 +91,7 @@ pvsAuto.SetPVSVar = function(self,name,value,typeValue)
         varValue.oldValue = value
     end
 
-    if self.OnChangePVSVar then self:OnChangePVSVar(name,varValue.oldValue,value) end
+    if self.OnChangePVSVar then self:OnChangePVSVar(name,oldValue,value) end
 end
 
 pvsAuto.GetPVSVar = function(self,name,def)
@@ -109,6 +123,40 @@ PLAYER.ProxyPVSVar = pvsAuto.ProxyPVSVar
 PLAYER.CallProxyPVSVar = pvsAuto.CallProxyPVSVar
 PLAYER.SetPVSVar = pvsAuto.SetPVSVar
 PLAYER.GetPVSVar = pvsAuto.GetPVSVar
+
+if SERVER then
+    util.AddNetworkString("pvs_auto")
+
+    -- The original PVS manager is absent in this build. Keep InitPVS usable and
+    -- send changed values immediately; this is what attachment and magazine
+    -- state use.
+    pvsAuto.Insert = pvsAuto.Insert or function() end
+
+    function ENTITY:OnChangePVSVar(name,old,new)
+        local vars = self.pvsVarsValues
+        local stored = vars and vars[name]
+        local typeName = stored and stored.type
+
+        if not typeName then
+            typeName = TypeID(new)
+        end
+
+        if new == nil then typeName = "none" end
+
+        local typeInfo = pvsAuto.TYPE_ID[typeName]
+        if not typeInfo then
+            ErrorNoHalt("[hg] Unsupported PVS type for " .. tostring(name) .. ": " .. tostring(typeName) .. "\n")
+            return
+        end
+
+        net.Start("pvs_auto")
+        net.WriteUInt(self:EntIndex(),14)
+        net.WriteString(name)
+        net.WriteUInt(typeInfo.net_pkg_id,4)
+        typeInfo[1](new)
+        net.SendPVS(self:GetPos())
+    end
+end
 
 fakeObject:Event_Add("Create","PVS",function(fake)
     ENTITY.InitPVS(fake)

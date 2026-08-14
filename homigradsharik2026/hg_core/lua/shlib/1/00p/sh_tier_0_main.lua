@@ -5,6 +5,28 @@ oop = oop or {}--sasi
 oop.listClass = oop.listClass or {}
 local OOP_listClass = oop.listClass
 
+-- Classes from hgame/hinit can be discovered before their base class (the
+-- order is also affected by mounted addons).  Keep a lightweight placeholder
+-- so the child can be re-included when the real base is registered instead of
+-- aborting the whole registration chain with "attempt to index local 'base'".
+local function EnsureClass(className,listClass)
+    local class = listClass[className]
+    if class then return class end
+
+    class = {
+        {},
+        {},
+        {},
+        baseChildrens = {},
+        ClassName = className,
+        IsOOPPlaceholder = true
+    }
+
+    listClass[className] = class
+
+    return class
+end
+
 function oop.Inherit(class,listClass)
     listClass = listClass or OOP_listClass
     
@@ -15,7 +37,7 @@ function oop.Inherit(class,listClass)
 
         for i,base in pairs(oldBase) do
             base = listClass[base]
-            base.baseChildrens[class.ClassName] = nil--shut the fuck up!
+            if base then base.baseChildrens[class.ClassName] = nil end
         end
     end
 
@@ -26,7 +48,7 @@ function oop.Inherit(class,listClass)
     local copyContent = util.tableCopy(content)
 
     for i,base in pairs(base) do
-        base = listClass[base]
+        base = EnsureClass(base,listClass)
         base.baseChildrens[class.ClassName] = class
 
         util.tableLink(content,base[1])
@@ -60,9 +82,11 @@ function oop.RegEx(className,base,listClass)
             baseChildrens = {}
         }
 
-        class.ClassName = className
         listClass[className] = class
     end
+
+    class.ClassName = className
+    class.IsOOPPlaceholder = nil
 
     class.oldBase = class.base
     class.base = base
@@ -164,6 +188,8 @@ function oop.Reg(className,base,isFolder,add,listClass)
     override[className] = class
     timer.Create("unoverride_" .. tostring(className),0,1,function() override[className] = nil end)//если произошла ошибка в коде, нехочу через pcall делать (для dev)
     oop.Include(class,nil,listClass)
+
+    return class[1],class[2]
 end
 
 function oop.RegConnect(className,isFolder,listClass,add)

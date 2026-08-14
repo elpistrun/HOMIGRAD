@@ -102,7 +102,7 @@ end
 
 SWEP:Event_Add("Construct","register",function(class)
     local content = class[1]
-    if content.NonRegisterGMOD or class[2].NonRegisterGMOD then return end
+    if class[2].NonRegisterGMOD then return end
 
     weapons.Register(content,content.ClassName)
 

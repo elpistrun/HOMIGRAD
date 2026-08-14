@@ -183,6 +183,8 @@ local function RoundDataSend(ply)
     end
 end
 
+local StartRound
+
 local function EndRound(winner)
     if not roundActive then return end
 
@@ -225,7 +227,7 @@ local function EndRound(winner)
     timer.Simple(Level.DelayStartRound or 5, StartRound)
 end
 
-local function StartRound()
+StartRound = function()
     if roundActive then return end
 
     roundActive = true

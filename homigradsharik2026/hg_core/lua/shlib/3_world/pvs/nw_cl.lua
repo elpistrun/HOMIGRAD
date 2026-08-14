@@ -1,9 +1,12 @@
 pvsAuto = pvsAuto or {}
 
 function pvsAuto.ReadIndex()
-    local typeValueID = net.ReadInt(4) + 9
+    local typeValueID = net.ReadUInt(4)
+    local typeName = pvsAuto.TYPE_ID_NET[typeValueID]
+    local typeInfo = typeName and pvsAuto.TYPE_ID[typeName]
+    if not typeInfo then return nil end
 
-    return pvsAuto.TYPE_ID[pvsAuto.TYPE_ID_NET[typeValueID]][2]()
+    return typeInfo[2]()
 end
 
 local ENTITY = FindMetaTable("Entity")
@@ -15,7 +18,7 @@ end
 local err = function(err) ErrorNoHaltWithStack(err) end
 
 net.Receive("pvs_auto",function(len)
-    local entIndex = 4096 + net.ReadInt(13)
+    local entIndex = net.ReadUInt(14)
     local var_name = net.ReadString()
     local value = pvsAuto.ReadIndex()
 

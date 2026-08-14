@@ -15,9 +15,9 @@ function SWEP:EatValue(ent)
     local add = self.HungryAdd / self.MaxValue
 
     if SERVER then
-        ent.hungry = math.min(ent.hungry + add, 10)
-        ent.blood = math.min(ent.blood + 30 * self.HungryAdd, 5000)
-        ent.stamina = math.min(ent.stamina + self.HungryAdd, 100)
+        ent.hungry = math.min((ent.hungry or 10) + add, 10)
+        ent.blood = math.min((ent.blood or 5000) + 30 * self.HungryAdd, 5000)
+        ent:SetStamina((ent.stamina or 100) + (self.StaminaAdd or self.HungryAdd))
         ent:SetHealth(math.min(ent:Health() + 1, ent:GetMaxHealth()))
     end
 

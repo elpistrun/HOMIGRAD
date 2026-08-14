@@ -8,7 +8,7 @@ ENT.Type = "nextbot"
 
 ENT:Event_Add("Construct","register",function(class)
     local content = class[1]
-    if content.NonRegisterGMOD or class[2].NonRegisterGMOD then return end
+    if class[2].NonRegisterGMOD then return end
 
     scripted_ents.Register(content,content.ClassName)
 

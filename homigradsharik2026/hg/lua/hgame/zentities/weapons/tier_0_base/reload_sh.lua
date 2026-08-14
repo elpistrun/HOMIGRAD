@@ -47,12 +47,17 @@ end)
 function SWEP:FindAmmoInInv()
     local ammoItem
 
+    local owner = self:GetOwner()
+    if not IsValid(owner) or not isfunction(owner.GetAllAutoItems) then return end
+
     local curretAmmoClass = self:GetAmmoClass()
 
-    for i,item in pairs(self:GetOwner():GetAllAutoItems()) do
+    for i,item in pairs(owner:GetAllAutoItems() or {}) do
         if not item.data or not item.data.ammoName then continue end--lol
 
-        if (curretAmmoClass and item.data.ammoName ~= curretAmmoClass) or ammoGame.config[item.data.ammoName].AmmoCalibre ~= self.Primary.AmmoCalibre then continue end
+        local ammoConfig = ammoGame.config[item.data.ammoName]
+        if not ammoConfig then continue end
+        if (curretAmmoClass and item.data.ammoName ~= curretAmmoClass) or ammoConfig.AmmoCalibre ~= self.Primary.AmmoCalibre then continue end
 
         ammoItem = item
 
