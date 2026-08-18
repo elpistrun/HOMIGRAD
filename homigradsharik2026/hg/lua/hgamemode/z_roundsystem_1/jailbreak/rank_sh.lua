@@ -36,6 +36,11 @@ function jailbreakManager:InputFull(body)
     jailbreakManager:Event_Call("Update")
 end
 
+net.Receive("jailbreak_ranks_data",function()
+    local body = net.ReadString()
+    jailbreakManager:InputFull(body)
+end)
+
 jailbreakManager:Event_Add("Update","UI",function()
     if IsValid(JailBreakMenuRanks) then JailBreakMenuRanks:Update() end
 end)

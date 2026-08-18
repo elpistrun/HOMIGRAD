@@ -8,19 +8,47 @@ end
 local tr = hitBoxGame.CreateTraceTable()
 tr.mask = MASK_SHOT
 
+local function ServerTrace(owner,useHull)
+    local nativeTrace = {
+        start = tr.start,
+        endpos = tr.endpos,
+        mins = tr.mins,
+        maxs = tr.maxs,
+        mask = tr.mask,
+        filter = function(ent)
+            return not tr.filterTrace[ent]
+        end
+    }
+
+    -- Rewind other players to the command tick while the authoritative trace
+    -- is performed. The client-only hitbox tracer is still used clientside.
+    if IsValid(owner) then owner:LagCompensation(true) end
+    local result = useHull and util.TraceHull(nativeTrace) or util.TraceLine(nativeTrace)
+    if IsValid(owner) then owner:LagCompensation(false) end
+
+    result.start = result.StartPos
+    result.endpos = result.HitPos
+    return result
+end
+
 function SWEP.anm_ActionLoad(object,cmd)
-    if not object.isLocal then return end
+    -- The client uses isLocal to avoid drawing another player's predicted hit.
+    -- The authoritative server animation does not have this flag, but it must
+    -- still run the trace and apply damage.
+    if CLIENT and not object.isLocal then return end
 
     local self = object.parent
 
     local pos,ang,renderTime
 
-    if cmd then
+    if cmd and isvector(cmd.pos) and isangle(cmd.ang) then
         pos,ang,renderTime = cmd.pos,cmd.ang,cmd.renderTime
     else
         pos,ang = self:GetShootMatrix()
         renderTime = GetRenderTime()
     end
+
+    renderTime = tonumber(renderTime) or GetRenderTime()
     
     local self = object.parent
     local owner = self:GetOwner()
@@ -28,6 +56,7 @@ function SWEP.anm_ActionLoad(object,cmd)
     tr.ClearFilterTrace()
     tr.filterTrace[owner] = true
     tr.filterTrace[owner:GetDummy()] = true
+    tr.filterTrace[self] = true
 
     tr.start = pos + object.attackPosStart:Clone():Rotate(ang)
     tr.endpos = pos + object.attackPosEnd:Clone():Rotate(ang)
@@ -42,22 +71,22 @@ function SWEP.anm_ActionLoad(object,cmd)
 
     for i = 1,self[object.typeAttack].MultiAttack or 1 do
         if self[object.typeAttack].FirstHullTrace then
-            result = hitBoxGame.LagTraceHull(tr,renderTime,debug)
+            result = SERVER and ServerTrace(owner,true) or hitBoxGame.LagTraceHull(tr,renderTime,debug)
 
             if not result.Hit then
-                result = hitBoxGame.LagTraceLine(tr,renderTime,debug)
+                result = SERVER and ServerTrace(owner,false) or hitBoxGame.LagTraceLine(tr,renderTime,debug)
             end
         else
-            result = hitBoxGame.LagTraceLine(tr,renderTime,debug)
+            result = SERVER and ServerTrace(owner,false) or hitBoxGame.LagTraceLine(tr,renderTime,debug)
 
             if not result.Hit then
-                result = hitBoxGame.LagTraceHull(tr,renderTime,debug)
+                result = SERVER and ServerTrace(owner,true) or hitBoxGame.LagTraceHull(tr,renderTime,debug)
             end
         end
 
         if not result.HitPos then continue end--wtf
 
-        local length = result.HitPos:Length(result.StartPos)
+        local length = result.HitPos:Distance(result.StartPos or tr.start)
 
         closeHitPos = math.min(closeHitPos or length,length)
 
@@ -70,8 +99,29 @@ function SWEP.anm_ActionLoad(object,cmd)
 
         if result.Hit then self:Hit(result,object.typeAttack) end
 
-        tr.filterTrace[result.Entity:GetDummy()] = true
+        if IsValid(result.Entity) then
+            tr.filterTrace[result.Entity:GetDummy()] = true
+        end
     end
+end
+
+function SWEP:ScheduleServerMeleeLoad(sequenceObject,cmd)
+    if not SERVER or not sequenceObject then return end
+
+    self.meleeLoadToken = (self.meleeLoadToken or 0) + 1
+    local token = self.meleeLoadToken
+    local delay = math.max((tonumber(sequenceObject.delay) or 0.5) * (tonumber(sequenceObject.load) or 0.5),0.05)
+
+    timer.Simple(delay,function()
+        if not IsValid(self) or self.meleeLoadToken != token then return end
+        if self.sequenceObject != sequenceObject or sequenceObject.m_load then return end
+        if not IsValid(self:GetOwner()) or self:GetOwner():GetActiveWeapon() != self then return end
+
+        -- self[1] is not guaranteed to exist on server-side OOP instances.
+        -- Call the registered base implementation directly.
+        SWEP.anm_ActionLoad(sequenceObject,cmd)
+        sequenceObject.m_load = true
+    end)
 end
 
 SWEP:ConstructAnimationAction("attack_primary",
@@ -82,6 +132,7 @@ SWEP:ConstructAnimationAction("attack_primary",
 
         local sequenceObject = self:PlayAnimation("attack_primary")
         sequenceObject.typeAttack = "Primary"
+        self:ScheduleServerMeleeLoad(sequenceObject,cmd)
         
         if SERVER then self:SyncAnimation() end
 
@@ -101,6 +152,7 @@ SWEP:ConstructAnimationAction("attack_secondary",
 
         local sequenceObject = self:PlayAnimation("attack_secondary")
         sequenceObject.typeAttack = "Secondary"
+        self:ScheduleServerMeleeLoad(sequenceObject,cmd)
         
         if SERVER then self:SyncAnimation() end
 
@@ -150,7 +202,8 @@ function SWEP:Hit(result,typeAttack)
 
     if SERVER then
         if IsValid(entity) then
-            entity = entity:GetController() or entity
+            local controller = entity:GetController()
+            entity = IsValid(controller) and controller or entity
             dmgTab = CreateDamageTab(entity,self:GetOwner(),self,self[typeAttack].Damage,self[typeAttack].DamageType)
             dmgTab.isMelee = true
             dmgTab.pos = result.HitPos
@@ -162,11 +215,12 @@ function SWEP:Hit(result,typeAttack)
             dmgTab.impulse = self[typeAttack].DamageImpulse
             dmgTab.dontBleedArtery = self[typeAttack].DontBleedArtery
 
-            dmgTab.force = result.Normal * (self[typeAttack].Force or 1)
+            local hitDirection = result.Normal or (result.HitPos - (result.StartPos or tr.start)):GetNormalized()
+            dmgTab.force = hitDirection * (self[typeAttack].Force or 1)
             dmgTab.forcePhys = dmgTab.force
 
             if self[typeAttack].ForceRagdoll then
-                dmgTab.forcePhysRagdoll = result.Normal * self[typeAttack].ForceRagdoll
+                dmgTab.forcePhysRagdoll = hitDirection * self[typeAttack].ForceRagdoll
             else
                 dmgTab.forcePhysRagdoll = dmgTab.force * 10
             end
@@ -222,9 +276,13 @@ function SWEP:Hit(result,typeAttack)
     
     if self.HitPost then self:HitPost(result,typeAttack,surfaceName) end
 
-    if SERVER and IsValid(entity) and (entity:GetController() or entity):IsPlayer() and IsValid(self:GetOwner()) then
-        net.Start("hit_detect")
-        net.Send(self:GetOwner())
+    if SERVER and IsValid(entity) then
+        local ctrlCheck = entity:GetController()
+        local finalEnt = IsValid(ctrlCheck) and ctrlCheck or entity
+        if finalEnt:IsPlayer() and IsValid(self:GetOwner()) then
+            net.Start("hit_detect")
+            net.Send(self:GetOwner())
+        end
     end
 
     if self.EnableMetalVibration and surfaceWorld.TypeIndex[surfaceName] == "metal" then

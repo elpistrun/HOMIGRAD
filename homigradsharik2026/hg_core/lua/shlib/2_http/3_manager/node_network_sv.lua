@@ -9,6 +9,7 @@ end
 
 MANAGER:Event_Add("Init","Network",function(self)
 	local name = self.name
+	util.AddNetworkString(name .. "_server")
 
 	net.Receive(name .. "_server",function(_,ply)
 		if self.InputServer then self:InputServer(ply) end

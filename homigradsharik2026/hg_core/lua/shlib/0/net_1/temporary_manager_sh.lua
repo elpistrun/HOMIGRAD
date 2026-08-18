@@ -9,7 +9,27 @@ function temporary.Create(name,funcOutput,funcRead,funcInput)
     }
 end
 
-if SERVER then return end
+if SERVER then
+    util.AddNetworkString("temporaryData_Delta")
+
+    function temporary.OutputFilter(name,filter,...)
+        local info = temporary.List[name]
+        if not info or not info.funcOutput then return false end
+
+        net.Start("temporaryData_Delta")
+            net.WriteString(name)
+            info.funcOutput({...})
+
+        if filter then net.Send(filter) else net.Broadcast() end
+        return true
+    end
+
+    function temporary.Output(name,...)
+        return temporary.OutputFilter(name,nil,...)
+    end
+
+    return
+end
 
 function temporary.Input(name,data)
     local info = temporary.List[name]

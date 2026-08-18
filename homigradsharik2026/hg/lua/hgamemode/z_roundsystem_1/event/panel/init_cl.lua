@@ -17,7 +17,7 @@ function EventPanel_UICreate(frame)
 
     local openWiki = oop.CreatePanel("v_button",frame):ad(function(self,w,h) self:setSize(200,50):setPos(w - self:W() - 30,30) end)
     openWiki:SetupDrawStyle("white_gradient"); openWiki.gradientSide = "right"; openWiki.text = "WIKI"; openWiki.font = "HS.25"
-    function openWiki:OnClick() gui.OpenURL("https://homigrad.com/wiki/gamemodes/special/event/") end
+    function openWiki:OnClick() gui.OpenURL("https://kopigrad.com/wiki/gamemodes/special/event/") end
 
     local panelPages = oop.CreatePanel("v_panel",frame):ad(function(self,w,h) self:setSize(w - math.max(300,w * 0.2) - 60,h * 0.8):setPos(30,(h - self:H()) / 2) end)
     function panelPages:Draw(w,h)

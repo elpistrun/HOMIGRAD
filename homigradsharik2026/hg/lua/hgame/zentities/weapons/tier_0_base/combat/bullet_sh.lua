@@ -42,11 +42,15 @@ end
 
 function SWEP:RejectShell(noFilter)
     if not self:IsLocal() or not self.Primary.AmmoCalibre then return end
+	local wm = self.wm
+	if not IsValid(wm) then return end
 
-	local att = self.wm:GetAttachment(2)
+	local att = wm:GetAttachment(2)
 	if not att then return end
-	
-	CreateShell(self.Primary.AmmoCalibre,att.Pos,self:GetOwner():GetVelocity() + self:GetShellDir():Rotate(att.Ang),not noFilter and self:GetOwner())
+
+	local owner = self:GetOwner()
+	local velocity = IsValid(owner) and owner:GetVelocity() or vector_origin
+	CreateShell(self.Primary.AmmoCalibre,att.Pos,velocity + self:GetShellDir():Rotate(att.Ang),not noFilter and owner)
 
 	return att.Pos,att.Ang
 end

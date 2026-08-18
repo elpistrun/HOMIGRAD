@@ -1,0 +1,9 @@
+{
+    "port": 3567,
+    "discord_bot_token": "MTUzODI5MzAwNzk5MDkxOTIwOA.GMsTod.9iP9UG7fzz-S6V41t5jdPTZzUeyoiQr7n0nrvs",
+    "discord_channel_id": "YOUR_STATUS_CHANNEL_ID",
+    "discord_verify_channel_id": "1524819488204128266",
+    "discord_app_id": "1538293007990919208",
+    "update_interval": 30000,
+    "game_name": "Homigrad"
+}

@@ -20,6 +20,77 @@ ENT.h = 1
 
 function ENT:GetRandomCount() return math.random(2,4) end
 
+if SERVER then
+    local function GetInventoryManager()
+        -- Some hgame loaders register entity folders before the root tier file.
+        -- Recover the missing server backend on first use instead of crashing.
+        if not inventoryGame then
+            include("hgame/1/0_inv/tier_0_sh.lua")
+        end
+        if inventoryGame and not inventoryGame.CreateWorldInventory then
+            include("hgame/1/0_inv/inv_base/backend_sv.lua")
+        end
+        return inventoryGame
+    end
+
+    local function FillLootbox(self)
+        if self.hgLootCreated then return end
+
+        local manager = GetInventoryManager()
+        if not manager or not manager.CreateWorldInventory then
+            ErrorNoHalt("[HG inventory] server backend is not available for lootbox\n")
+            return
+        end
+
+        local inv = manager.CreateWorldInventory(
+            self,
+            "inv_storage",
+            math.max(tonumber(self.w) or 1,1),
+            math.max(tonumber(self.h) or 1,1),
+            self.PrintName or self.Name or "Контейнер"
+        )
+        if not IsValid(inv) then return end
+
+        self.hgLootCreated = true
+        self.inv = inv
+        if self.CreateLoot then
+            local ok,err = pcall(self.CreateLoot,self)
+            if not ok then ErrorNoHalt("[HG inventory] lootbox fill failed: " .. tostring(err) .. "\n") end
+        else
+            for i = 1,math.min(self:GetRandomCount(),(self.w or 1) * (self.h or 1)) do
+                local spawnname = self.GetRandom and self:GetRandom()
+                if not spawnname and istable(self.InvRandomLoot) and #self.InvRandomLoot > 0 then
+                    spawnname = self.InvRandomLoot[math.random(1,#self.InvRandomLoot)]
+                end
+                if spawnname then inv:AddEnt({spawnname = spawnname,data = {}}) end
+            end
+        end
+    end
+
+    function ENT:OpenInventory(ply)
+        if not IsValid(ply) or not ply:IsPlayer() then return false end
+        if ply:EyePos():DistToSqr(self:NearestPoint(ply:EyePos())) > 14400 then return false end
+
+        FillLootbox(self)
+        if not IsValid(self.inv) then return false end
+
+        self.inv.viewers[ply] = true
+        local manager = GetInventoryManager()
+        if not manager or not manager.ServerSendInventory then return false end
+        manager.ServerSendInventory(self.inv,ply,true)
+        return true
+    end
+
+    function ENT:Use(activator,caller)
+        self:OpenInventory(IsValid(activator) and activator or caller)
+    end
+
+    function ENT:AcceptInput(name,activator,caller)
+        if string.lower(name or "") ~= "use" then return end
+        return self:OpenInventory(IsValid(activator) and activator or caller)
+    end
+end
+
 local fallbackModel = "models/props_junk/wood_crate001a.mdl"
 
 function ENT:Initialize()

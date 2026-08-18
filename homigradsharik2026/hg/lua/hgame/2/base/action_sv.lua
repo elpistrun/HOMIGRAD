@@ -33,8 +33,23 @@ net.Receive("weapon_action",function(len,ply)
 
     if action.netRead then action.netRead(wep,cmd) end
 
+    -- Do not let an already finished server animation poison the next input.
+    -- This also recovers weapons created before their animation flags were
+    -- reconstructed after a Lua refresh.
+    local sequenceObject = wep.sequenceObject
+    if sequenceObject and sequenceObject.IsEnd and sequenceObject:IsEnd() then
+        wep:ResetAnimation("server_action_cleanup")
+        if wep.SyncAnimation then wep:SyncAnimation() end
+    end
+
     local success,err = wep:DoAction(cmd)
     if success then return end
+
+    local activeSequence = wep.sequenceObject
+    MsgC(Color(255,180,80),"[HG weapon action] ",Color(255,255,255),
+        tostring(ply)," / ",tostring(wep:GetClass())," / ",tostring(name),
+        " rejected: ",tostring(err or "action rejected"),
+        " (sequence=",tostring(activeSequence and activeSequence.name or "none"),")\n")
 
     net.Start("weapon_action")
     net.WriteTable({name = name,err = err or "action rejected"})

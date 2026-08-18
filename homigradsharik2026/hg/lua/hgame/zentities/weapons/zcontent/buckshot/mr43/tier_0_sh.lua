@@ -102,7 +102,10 @@ SWEP.SprayAng = Angle(4,0,0)
 
 SWEP.recoilBackMul = 6
 
-function SWEP:CanPrimaryAttackChamber() return true end
+function SWEP:CanPrimaryAttackChamber()
+    return self.chamber1 != false and self.chamber1 != nil
+        or self.chamber2 != false and self.chamber2 != nil
+end
 
 SWEP.ShellBoneIndex = {
     "patron_in_weapon_000",

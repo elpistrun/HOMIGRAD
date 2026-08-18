@@ -19,6 +19,7 @@ SWEP.HoldType = "ar2"
 SWEP.SupportCustomAttack = true
 
 SWEP.itemType = "weapon"
+SWEP.weaponLimitType = "secondary"
 
 SWEP.PhysicsBox = {-Vector(12,1,2.5),Vector(16,1,1)}
 

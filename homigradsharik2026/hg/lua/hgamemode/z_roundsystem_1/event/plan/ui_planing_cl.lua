@@ -279,7 +279,6 @@ function EventPlaning_UICreate(PANEL1)
             for i,event in pairs(eventManager.listData) do
                 local panel = event.panel
                 local renderX = (event.period[1] - math.floor(curret / DIV) * DIV) / DIV * size - x
-                i = i - 1
                 
                 panel:setPos(renderX,panel.y)
             end

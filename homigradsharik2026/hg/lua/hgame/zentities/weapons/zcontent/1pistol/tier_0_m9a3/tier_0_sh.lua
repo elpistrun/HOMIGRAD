@@ -10,6 +10,7 @@ SWEP.SlotPos				= 2
 
 SWEP.HoldType = "revolver"
 SWEP.itemType = "weaponSecondary"
+SWEP.weaponLimitType = "pistol"
 -- Model
 
 

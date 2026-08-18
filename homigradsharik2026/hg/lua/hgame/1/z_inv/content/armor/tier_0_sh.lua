@@ -1,7 +1,9 @@
 local INV = oop.Reg("inv_armor","inv_storage",true)
 if not INV then return INCLUDE_BREAK end
 
-INV.Size = {2,8}
+-- Row 9 is the generic "other" armor slot and is rendered by the inventory
+-- page explicitly. The old 2x8 size made that UI slot point at nil.
+INV.Size = {2,9}
 
 --[[
     голова, лицо

@@ -8,6 +8,7 @@ SWEP.IconOverride = "entities/arc9_eft_m32a1.png"
 SWEP.Slot					= 2
 SWEP.SlotPos				= 1
 SWEP.itemCategory = "weapon"
+SWEP.weaponLimitType = "secondary"
 
 SWEP.HoldType = "ar2"
 

@@ -7,7 +7,8 @@ net.Receive("weapon_action",function(len)
 
     local cmd = net.ReadTable()
 
-    ErrorNoHalt("WEAPON ACTION RESPONSE SERVER: STOP ACTION " .. tostring(cmd.name) .. " BY REASON: " .. tostring(cmd.err) .. "\n")
+    MsgC(Color(255,180,80),"[HG weapon action] ",Color(255,255,255),
+        tostring(cmd.name)," stopped by server: ",tostring(cmd.err),"\n")
     
     local action = wep.Actions[cmd.name]
     

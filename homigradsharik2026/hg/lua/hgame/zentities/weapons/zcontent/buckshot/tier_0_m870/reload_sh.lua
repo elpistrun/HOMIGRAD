@@ -14,9 +14,21 @@ end
 SWEP:ConstructAnimationAction("pomp_insert",
 function(self,cmd)
     local ammo = self:FindAmmoInInv()
-    if not ammo then return end
+    if not ammo then
+        local maxClip = self:GetMaxClip1() + (self.chamber and 1 or 0)
+        if #self.chamberPump >= maxClip then return false,"tube full" end
+
+        local ammoName = ammoGame.callibreIndex[self.Primary.AmmoCalibre]
+        self.chamberPump[#self.chamberPump + 1] = ammoName
+        self:SetClip1(#self.chamberPump)
+        self:PlayAnimation({name = "pomp_insert",className = "base",sandboxFallback = true})
+        if SERVER then self:SyncAnimation() end
+
+        return true
+    end
     
     self:PlayAnimationAction({name = "pomp_insert",ammo = ammo})
+    if SERVER then self:SyncAnimation() end
 
     return true
 end,function(self,anim)

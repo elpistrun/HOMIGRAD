@@ -37,12 +37,14 @@ l.special_forces_run = "Спецназ приезжает."
 l.police_run = "Полиция приезжает."
 
 l.police_come = "До прибытие полиции : %s"
+l.police_operation_end = "До окончания операции полиции: %s"
 
 l.you = "Вы %s"
 l.you_team = "Ваша команда %s"
 
 l.door = "Дверь"
 l.button = "Кнопка"
+l.pickup = "Подобрать"
 
 l.pulse_0 = "Нет пульса"
 l.pulse_1 = "Сильный пульс"

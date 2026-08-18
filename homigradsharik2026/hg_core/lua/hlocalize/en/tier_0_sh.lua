@@ -20,6 +20,6 @@ l.Day = "Day"
 l.Week = "Week"
 l.Month = "Month"
 
-l.loadscreen_welcome = "Welcome to HOMIGRAD.COM"
+l.loadscreen_welcome = "Welcome to KOPIGRAD.COM"
 l.loadscreen_wait = "Please wait a few seconds"
 l.loadscreen_what_me_do = "If nothing happens after a minute, something may have gone wrong. (reconnect to the server)"

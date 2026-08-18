@@ -29,6 +29,60 @@ if SERVER then
     adminPanel.commandCreate("setpos",function(ply,x,y,z)
         ply:SetPos(Vector(x,y,z))
     end,"game")
+
+    adminPanel.commandCreate("noclip",function(ply,targets)
+        if not istable(targets) then return end
+        for _,steamid64 in ipairs(targets) do
+            local target = player.GetBySteamID64(tostring(steamid64))
+            if IsValid(target) then
+                target:SetMoveType(target:GetMoveType() == MOVETYPE_NOCLIP and MOVETYPE_WALK or MOVETYPE_NOCLIP)
+            end
+        end
+    end,"game",nil,"admin_operator")
+
+    adminPanel.commandCreate("teamforce",function(ply,targets,teamId)
+        teamId = tonumber(teamId)
+        if not teamId then return end
+
+        if istable(targets) then
+            for _,sid in ipairs(targets) do
+                local target = player.GetBySteamID64(tostring(sid))
+                if IsValid(target) then target:SetTeam(teamId) end
+            end
+        elseif isstring(targets) then
+            local target
+            if string.sub(targets,1,6) == "STEAM_" then
+                target = player.GetBySteamID(targets)
+            else
+                target = player.GetBySteamID64(targets)
+            end
+            if IsValid(target) then target:SetTeam(teamId) end
+        end
+    end,"game",nil,"admin_operator")
+
+    adminPanel.commandCreate("map",function(ply,mapName)
+        if not isstring(mapName) or mapName == "" then return end
+        game.ChangeLevel(mapName)
+    end)
+
+    -- Map block sync
+    util.AddNetworkString("map_block_sync")
+    serverBlockedMaps = serverBlockedMaps or {}
+
+    local function SyncBlockedMaps()
+        local json = util.TableToJSON(serverBlockedMaps)
+        for _,p in ipairs(player.GetAll()) do
+            net.Start("map_block_sync")
+            net.WriteString(json)
+            net.Send(p)
+        end
+    end
+
+    adminPanel.commandCreate("map_block",function(ply,mapName,block)
+        if not isstring(mapName) or mapName == "" then return end
+        serverBlockedMaps[mapName] = tobool(block)
+        SyncBlockedMaps()
+    end)
 end
 
 if SERVER then return end

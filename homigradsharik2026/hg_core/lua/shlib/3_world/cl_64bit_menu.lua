@@ -24,7 +24,7 @@ concommand.Add("hg_show_64bitmenu",function()
             snd:PlayEx(0.05,100)
         end
 
-        draw.SimpleText("HOMIGRAD.COM","H50",w/2,h * 0.05,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+        draw.SimpleText("KOPIGRAD.COM","H50",w/2,h * 0.05,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
         draw.SimpleText("32BIT GARRY'S MOD VERSION ON THIS SERVER - IS NOT SUPPORTED!","H50",w/2,h * 0.133,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
         draw.SimpleText("Установите бета версию - x86-64 Chromium + 64-bit binares","H50",w/2,h * 0.133 + 60,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 

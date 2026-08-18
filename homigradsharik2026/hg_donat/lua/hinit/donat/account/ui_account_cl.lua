@@ -31,7 +31,7 @@ function PageSub.Open(frame)
         end
     end
 
-    local profile = outfitManager.listData[AccountSteamID64] or {}
+    local profile = Profiles[AccountSteamID64] or outfitManager.listData[AccountSteamID64] or {}
 
     local switch = oop.CreatePanel("v_switch",addBlock(L("donat_ui_profile_hide_role"),60)):ad(function(self,w,h) self:setSize(h * 2,h):setPos(w - self:W(),0) end)
     function switch:OnValue(value) RunConsoleCommand("hg_dontshowmyperms",value and 1 or 0) end
@@ -99,10 +99,29 @@ function PageSub.Open(frame)
     textEntry:SetPlaceholderText("URL Image")
     textEntry:SetValue(profile.background or "")
     function textEntry:OnEnter()
-        if GetConVar("hg_profile_background"):GetString() == self:GetValue() then return end
+        local value = string.Trim(self:GetValue())
+        if value ~= "" and not string.match(string.lower(value),"^https?://") then
+            notification.AddLegacy("Banner URL должен начинаться с http:// или https://",NOTIFY_ERROR,4)
+            return
+        end
+        if string.find(value,"[\"'<>\r\n]") then
+            notification.AddLegacy("Banner URL содержит недопустимые символы",NOTIFY_ERROR,4)
+            return
+        end
+        value = string.gsub(value,"cdn%.discordapp%.com","media.discordapp.net")
+        self:SetValue(value)
+
+        local sid = LocalPlayer():SteamID64()
+        Profiles[sid] = Profiles[sid] or {}
+        Profiles[sid].background = value
+        if outfitManager and outfitManager.listData then
+            outfitManager.listData[sid] = outfitManager.listData[sid] or {}
+            outfitManager.listData[sid].background = value
+        end
+        Page.avatarHTML:Update()
 
         Homigrad_RulesPublishContent("hg_rpc_profile",function()
-            RunConsoleCommand("hg_profile_background",self:GetValue())
+            RunConsoleCommand("hg_profile_background",value)
         end)
     end
 

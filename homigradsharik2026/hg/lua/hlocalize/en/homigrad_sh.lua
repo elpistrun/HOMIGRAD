@@ -37,12 +37,14 @@ l.special_forces_run = "SWAT is coming."
 l.police_run = "The police are coming."
 
 l.police_come = "Until the police arrive. : %s"
+l.police_operation_end = "Police operation ends in: %s"
 
 l.you = "You %s"
 l.you_team = "You team %s"
 
 l.door = "Door"
 l.button = "Button"
+l.pickup = "Pick up"
 
 l.pulse_0 = "None pulse"
 l.pulse_1 = "Strong pulse"

@@ -1,5 +1,6 @@
 concommand.Add("footkick",function(ply,cmd,args)
     if not ply:Alive() then return end
+    if ply:GetStamina() <= 5 then return end
 
     local pitch = ply:EyeAngles()[1]
 

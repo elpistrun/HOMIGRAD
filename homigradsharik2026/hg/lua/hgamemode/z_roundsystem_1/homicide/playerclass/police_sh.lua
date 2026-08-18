@@ -38,7 +38,7 @@ function CLASS:Off()
 		GuiltCheck(ply)
 	end*/
 
-	self.isContr = nil
+	self.isPolice = nil
 end
 
 local function EmitSound(self,name,level,pitch,volume)
@@ -295,7 +295,7 @@ if SERVER then
 end
 
 function CLASS:TeamName()
-	return "police",CLASS.color
+	return "innocent",CLASS.color
 end
 
 local nigger = Color(0,0,0,200)

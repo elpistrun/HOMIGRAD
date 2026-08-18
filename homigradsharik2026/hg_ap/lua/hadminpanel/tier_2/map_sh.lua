@@ -75,4 +75,9 @@ if CLIENT then
 
         event.Call("Map Blocked Sync")
     end)
+
+    net.Receive("map_block_sync",function()
+        MapsBlocked = util.JSONToTable(net.ReadString()) or {}
+        event.Call("Map Blocked Sync")
+    end)
 end

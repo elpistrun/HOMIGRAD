@@ -13,7 +13,7 @@ SWEP.HoldType = "ar2"
 -- Model
 
 SWEP.Primary.ClipSize  = 5
-SWEP.Primary.Automatic = true
+SWEP.Primary.Automatic = false
 SWEP.Primary.ChamberAuto = false
 
 SWEP.Primary.Delay = 1 / 3

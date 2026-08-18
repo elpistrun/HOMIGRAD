@@ -53,4 +53,6 @@ function INV:FindItemByEntity(ent)
     end
 end
 
-inventoryGame.IsValidItem = function(self) return IsValid(self.inv) and self.x and self.y and self.depth and self.inv.slots[self.x][self.y].list[self.depth] == self or false end
+if inventoryGame then
+    inventoryGame.IsValidItem = function(self) return IsValid(self.inv) and self.x and self.y and self.depth and self.inv.slots[self.x][self.y].list[self.depth] == self or false end
+end

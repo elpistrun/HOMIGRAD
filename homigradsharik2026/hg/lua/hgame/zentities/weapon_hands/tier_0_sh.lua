@@ -36,8 +36,14 @@ SWEP.Secondary.Delay = 0.375
 function SWEP:GetShootMatrix() return self:GetOwner():Eye() end
 
 function SWEP:PlayDeployAnimation()
-    self:PlayAnimation({name = "holster",start = 0})
-    if SERVER then self:SyncAnimation() end
+    -- Hands used to deploy with FightState=false, while the left punch and
+    -- stance explicitly require combat mode. Nothing ever enabled it.
+    if not self:GetFightState() then
+        self:SetFightState(true)
+    else
+        self:PlayAnimation({name = "deploy",start = 0})
+        if SERVER then self:SyncAnimation() end
+    end
 end
 
 function SWEP:PlayHolsterAnimation()

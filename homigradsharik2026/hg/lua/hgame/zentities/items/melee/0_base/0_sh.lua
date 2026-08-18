@@ -29,6 +29,14 @@ SWEP.CorrectiveDropInfo = {
 
 SWEP.WorldModelContentLink_wmDropData = true
 SWEP.SecondaryWeaponDontFollowHand = true
+SWEP.weaponLimitType = "melee"
+SWEP.AlwaysDeterminateUse = true -- Make stuck weapons always targetable
+
+-- Make weapons on the ground targetable by HUD
+function SWEP:DeterminateUse(ply,trace)
+    -- Only targetable if not owned by anyone (on the ground/stuck in wall)
+    return not IsValid(self:GetOwner())
+end
 
 SWEP:Event_Add("inv_NetData","isBlooded",function(self,item,pkg)
     pkg.isBlooded = IsValid(self) and self:GetPVSVar("IsBlooded") or (item.data and item.data.isBlooded)
@@ -93,3 +101,41 @@ SWEP.ParseAnimationFlags.throw = {
         "attack_throw_start"
     }
 }
+
+-- Pickup stuck weapons from the ground
+if SERVER then
+    function SWEP:Use(ply)
+        if not IsValid(ply) or not ply:IsPlayer() then return end
+        if not ply:Alive() or ply:InFake() then return end
+        
+        -- Check if player already has this weapon
+        if self:GetOwner() == ply then return end
+        
+        -- Check if player already has this weapon class
+        if ply:HasWeapon(self:GetClass()) then return end
+        
+        -- Get player's inventory
+        local inv = ply.invPlayer
+        if not IsValid(inv) then return end
+        
+        -- Find empty slot
+        local slot = inventoryGame.ServerEmptySlot(inv)
+        if not slot then return end
+        
+        -- Insert weapon into inventory
+        inventoryGame.ServerInsertItem({spawnname = self:GetClass(), data = {}, ent = self}, slot)
+        
+        -- Remove the world entity
+        self:Remove()
+    end
+else
+    local white = Color(255,255,255)
+    
+    function SWEP:HUDTarget(ent,k,w,h)
+        -- Only show pickup prompt if weapon is on the ground (no owner)
+        if IsValid(self:GetOwner()) then return end
+        
+        HUDTargetRenderText("pickup",k,white)
+        return true
+    end
+end

@@ -23,7 +23,7 @@ if CLIENT then
 end
 
 function ANM:CanStart()
-    return not self.parent:IsCooldown("footkick",self.parent) and not self.parent:Crouching() and not self.parent:GetNWBool("Fake")
+    return not self.parent:IsCooldown("footkick",self.parent) and not self.parent:Crouching() and not self.parent:GetNWBool("Fake") and self.parent:GetStamina() > 5
 end
 
 local tr = hitBoxGame.CreateTraceTable()
@@ -45,6 +45,10 @@ function ANM:StartPost()
     local ply = self.parent
 
     ply:SetCooldown("footkick",1 + ply:GetMetabolismStaminaDelay() * 10)
+
+    if SERVER then
+        ply:SetStamina(ply:GetStamina() - 5)
+    end
 
     if CLIENT then
         sound.Emit(ply:EntIndex(),"weapons/melee/matelbat/bat_draw.wav",75,1,90,ply:GetPos() + ply:OBBCenter())
@@ -113,7 +117,8 @@ if SERVER then
         local hitEntity = result.Entity
         if not IsValid(hitEntity) or hitEntity == ply then return end
 
-        local entity = hitEntity:GetController() or hitEntity
+        local ctrl = hitEntity:GetController()
+        local entity = IsValid(ctrl) and ctrl or hitEntity
 
         local pos = result.HitPos
         local surfaceName = surfaceWorld.GetSurfaceName(result.SurfaceProps)
@@ -140,4 +145,19 @@ if SERVER then
 
         entity:TakeDamageTab(dmgTab)
     end
+
+    -- Server-side handler for the footkick command sent by the client.
+    -- Replays the animation on the server so other players see it
+    -- and the authoritative trace/damage runs inside ANM:Think.
+    concommand.Add("footkick_native",function(ply,_,args)
+        if not IsValid(ply) or not ply:Alive() then return end
+        if ply:GetStamina() <= 5 then return end
+
+        local moveType = tonumber(args[1]) or 0
+        local anmName = moveType == 1 and "anm_kick_down" or "anm_kick"
+
+        local sequenceObject = ply:PlayAnimation("foot",{name = anmName})
+        if not sequenceObject then return end
+        sequenceObject:Start()
+    end)
 end

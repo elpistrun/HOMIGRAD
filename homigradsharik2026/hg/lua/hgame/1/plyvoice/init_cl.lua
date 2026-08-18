@@ -136,9 +136,6 @@ function SetFlexMouth(ply,ent,mul)
 	end
 end
 
-local white = Color(165,165,165)
-local mat = Material("homigrad/vgui/icons/speaker/voice_3.png")
-
 function PlayerBones_Mouth(ply,tag,link)
 	if not ply.voiceEmit then return end
 
@@ -148,37 +145,3 @@ function PlayerBones_Mouth(ply,tag,link)
 		SetFlexMouth(link or ply,ply,2)
 	end
 end
-
-local empty = {}
-
-hook.Add("PostDrawTranslucentRenderables","Voice",function()
-	local HUD = plyVoice.HUD
-
-	for steamid64 in pairs(IsValid(HUD) and HUD.listID or empty) do
-		local ply = player.GetBySteamID64(steamid64)
-		if not ply:Alive() or ply:IsDormant() then continue end
-
-		local head = ply:LookupBone("ValveBiped.Bip01_Head1")
-	
-		if not head then
-			vec = ply:EyePos()
-			vec[3] = vec[3] + 25
-		else
-			vec = ply:GetDummy():GetBoneMatrix(head)
-			if not vec then return end
-
-			vec = vec:GetTranslation()
-			vec[3] = vec[3] + 15
-		end
-	
-		local volume = ply:VoiceVolume() or 0
-		if volume <= 0 then return end
-	
-		ply.voiceLerpScene = LerpFT(0.2,ply.voiceLerpScene or 0,255 * math.min(volume * 15,1))
-	
-		white.a = 168 * (ply.voiceLerpScene / 255)
-		
-		render.SetMaterial(mat)
-		render.DrawSprite(vec,8,8,white)
-	end
-end)

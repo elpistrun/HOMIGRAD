@@ -9,6 +9,7 @@ end
 
 MANAGER:Event_Add("Init","Network User",function(self)
 	local netUserName = self:GetNetUserName()
+	util.AddNetworkString(netUserName)
 
 	net.Receive(netUserName,function(_,ply)
 		local sessionId = net.ReadInt(7)

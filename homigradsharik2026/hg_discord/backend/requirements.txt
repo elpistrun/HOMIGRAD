@@ -1,0 +1,4 @@
+flask>=3.0
+requests>=2.31
+pypresence>=4.3
+discord.py>=2.3

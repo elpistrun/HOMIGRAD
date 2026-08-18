@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenIDE Web</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/editor/editor.main.css">
+</head>
+<body>
+    <!-- Menu Bar -->
+    <div id="menubar">
+        <div class="menu-logo">⬡ OpenIDE</div>
+        <div class="menu-items">
+            <div class="menu-item" data-menu="file">File</div>
+            <div class="menu-item" data-menu="edit">Edit</div>
+            <div class="menu-item" data-menu="view">View</div>
+            <div class="menu-item" data-menu="navigate">Navigate</div>
+            <div class="menu-item" data-menu="code">Code</div>
+            <div class="menu-item" data-menu="refactor">Refactor</div>
+            <div class="menu-item" data-menu="tools">Tools</div>
+            <div class="menu-item" data-menu="help">Help</div>
+        </div>
+        <div class="menu-right">
+            <input type="text" id="search-everywhere" placeholder="Search Everywhere (Double Shift)">
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div id="toolbar">
+        <button class="tool-btn" title="New File" id="btn-new-file">📄</button>
+        <button class="tool-btn" title="Save" id="btn-save">💾</button>
+        <div class="tool-sep"></div>
+        <button class="tool-btn" title="Run">▶</button>
+        <button class="tool-btn" title="Debug">🐛</button>
+        <div class="tool-sep"></div>
+        <button class="tool-btn" title="Git">🔀</button>
+        <div class="tool-sep"></div>
+        <span id="toolbar-path" class="toolbar-path"></span>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main">
+        <!-- Left Tool Window Strip -->
+        <div id="left-strip">
+            <button class="strip-btn active" data-panel="project" title="Project">📁</button>
+            <button class="strip-btn" data-panel="search" title="Find">🔍</button>
+            <button class="strip-btn" data-panel="structure" title="Structure">🏗️</button>
+            <button class="strip-btn" data-panel="git" title="Git">🔀</button>
+        </div>
+
+        <!-- Left Panel (Project Tree) -->
+        <div id="left-panel">
+            <div class="panel-header">
+                <span class="panel-title">Project</span>
+                <div class="panel-actions">
+                    <button id="btn-new-file2" title="New File">+</button>
+                    <button id="btn-new-folder" title="New Folder">📁+</button>
+                    <button id="btn-collapse" title="Collapse All">⊟</button>
+                </div>
+            </div>
+            <div id="file-tree"></div>
+        </div>
+
+        <!-- Resize Handle Left -->
+        <div class="resize-handle" id="resize-left"></div>
+
+        <!-- Editor Area -->
+        <div id="editor-area">
+            <!-- Editor Tabs -->
+            <div id="tabs"></div>
+            <!-- Monaco Editor -->
+            <div id="editor-container"></div>
+        </div>
+
+        <!-- Resize Handle Right -->
+        <div class="resize-handle" id="resize-right"></div>
+
+        <!-- Right Panel (Structure) -->
+        <div id="right-panel" class="hidden">
+            <div class="panel-header">
+                <span class="panel-title">Structure</span>
+            </div>
+            <div id="structure-tree"></div>
+        </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div id="bottom-area">
+        <!-- Bottom Tool Tabs -->
+        <div id="bottom-tabs">
+            <div class="bottom-tab active" data-panel="terminal">Terminal</div>
+            <div class="bottom-tab" data-panel="problems">Problems <span class="badge">0</span></div>
+            <div class="bottom-tab" data-panel="output">Output</div>
+        </div>
+        <!-- Bottom Content -->
+        <div id="bottom-content">
+            <div id="terminal-area">
+                <div id="terminal-placeholder">
+                    <span>Terminal (coming soon)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div id="statusbar">
+        <div class="status-left">
+            <span class="status-item" id="status-git">⎇ main</span>
+            <span class="status-item" id="status-errors">⊘ 0 errors</span>
+        </div>
+        <div class="status-right">
+            <span class="status-item" id="status-encoding">UTF-8</span>
+            <span class="status-item" id="status-lang"></span>
+            <span class="status-item" id="status-pos">Ln 1, Col 1</span>
+            <span class="status-item" id="status-path"></span>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="context-menu" class="hidden">
+        <div class="ctx-item" data-action="new-file">New File</div>
+        <div class="ctx-item" data-action="new-folder">New Folder</div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item" data-action="cut">Cut</div>
+        <div class="ctx-item" data-action="copy">Copy</div>
+        <div class="ctx-item" data-action="paste">Paste</div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item" data-action="rename">Rename</div>
+        <div class="ctx-item" data-action="delete">Delete</div>
+    </div>
+
+    <!-- Dropdown Menu -->
+    <div id="dropdown-menu" class="hidden"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>

@@ -10,11 +10,18 @@ function PageSub.Open(frame)
     button.text = L("donat_ui_outfit_play"); button.font = "HS.18"; button:SetupDrawStyle("white")
 
     function button.OnClick()
+        local selectedItem = frame.GetSelectItem and frame:GetSelectItem()
+        if not selectedItem or not selectedItem.id then
+            notification.AddLegacy("Сначала выберите модель",NOTIFY_ERROR,3)
+            return
+        end
+
+        local modelID = tostring(selectedItem.id)
         outfitManager:CoroutineWrap(function()
             button:SetLock(true)
             sound.EmitScreen("homigrad/vgui/csgo_ui_store_select.wav",0.5)
 
-            local success = outfitManager:NetUserRequest({cmd = "model_equip",modelID = tostring(frame:GetSelectItem().id)})
+            local success = outfitManager:NetUserRequest({cmd = "model_equip",modelID = modelID})
 
             if IsValid(button) then button:SetLock(false) end
             
@@ -89,7 +96,9 @@ function PageSub.Open(frame)
         
         scrollPanel:Clear()
 
-        for _,item in pairs(inventoryManager:SortItemList(inventoryManager.listGame[AccountSteamID64],"1_models")) do
+        local inventory = inventoryManager.listGame[AccountSteamID64] or {}
+        local models = inventoryManager:SortItemList(inventory,"1_models") or {}
+        for _,item in pairs(models) do
             local id = item.id
 
             local icon = oop.CreatePanel("v_button",scrollPanel):ad(function(self,w,h) self:setSize(iconSize,iconSize) end):AddByFlex()

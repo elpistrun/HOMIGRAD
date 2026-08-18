@@ -87,7 +87,7 @@ function Page.Open(frame)
         particles.Add(0,math.random(0,h),ScrW() * math.Rand(0.9,1.1) * 0.5,ScrH() * math.cos(RealTime() - particles.start) * 0.1)
     end
 
-    function button:OnClick() gui.OpenURL("https://homigrad.com/shop") end
+    function button:OnClick() gui.OpenURL("https://kopigrad.com/shop") end
 
     --
 

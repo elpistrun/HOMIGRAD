@@ -161,7 +161,7 @@ armorGame.RegAtt("armor_att_go_pro",{
 
                         render.DrawTextureToScreenRect(rtGoPro,0,0,ScrW(),ScrH())
 
-                        draw.SimpleText("HOMIGRAD.COM","HS.12",16,16)
+                        draw.SimpleText("KOPIGRAD.COM","HS.12",16,16)
                         draw.SimpleText(os.date("%d/%m/%Y %H:%M:%S",os.time()),"HS.12",16,28)
 
                         cam.PopModelMatrix()

@@ -76,10 +76,13 @@ function Level:HUDPaint(k)
 	green.a = 255 * k
 
 	if lply:Team() == 3 or lply:Team() == 2 or not lply:Alive() and police then
-		for i,point in pairs(pointManager.listData[pointManager:GetPage()].exit) do
-			local pos = point.pos:ToScreen()
+		local pageData = pointManager.listData[pointManager:GetPage()]
+		if pageData and pageData.exit then
+			for i,point in pairs(pageData.exit) do
+				local pos = point.pos:ToScreen()
 
-			draw.SimpleText("EXIT","ChatFont",pos.x,pos.y,green,TEXT_ALIGN_CENTER)
+				draw.SimpleText("EXIT","ChatFont",pos.x,pos.y,green,TEXT_ALIGN_CENTER)
+			end
 		end
 	end
 

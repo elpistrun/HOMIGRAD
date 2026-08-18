@@ -80,7 +80,11 @@ function util.DecalEx(mat,ent,pos,normal,color,w,h)
         
         HUtilDecalEx(mat,IsValid(ent) and ent or game.GetWorld(),pos,normal,color,w,h)
     else
-        util.DecalExServer(ent,decal)
+        if util.DecalExServer then
+            util.DecalExServer(ent,decal)
+        elseif not isWorld and temporary and temporary.Output then
+            temporary.Output("decal_entity",ent,decal[1]:GetName(),pos,normal:Angle(),decal[2],decal[3],decal[4])
+        end
     end
 end
 
@@ -168,4 +172,28 @@ function(data)
 end,
 function(data)
     util.DecalEx(Material(data[1]),nil,data[2],Vector(1,0,0):Rotate(data[3]),data[4],data[5],data[6])
+end)
+
+temporary.Create("decal_entity",
+function(data)
+    net.WriteEntity(data[1])
+    net.WriteString(data[2])
+    net.WriteVector(data[3])
+    net.WriteAngle(data[4])
+    net.WriteColor(data[5])
+    net.WriteFloat(data[6])
+    net.WriteFloat(data[7])
+end,
+function(data)
+    data[1] = net.ReadEntity()
+    data[2] = net.ReadString()
+    data[3] = net.ReadVector()
+    data[4] = net.ReadAngle()
+    data[5] = net.ReadColor()
+    data[6] = net.ReadFloat()
+    data[7] = net.ReadFloat()
+end,
+function(data)
+    if not IsValid(data[1]) then return end
+    util.DecalEx(Material(data[2]),data[1],data[3],Vector(1,0,0):Rotate(data[4]),data[5],data[6],data[7])
 end)

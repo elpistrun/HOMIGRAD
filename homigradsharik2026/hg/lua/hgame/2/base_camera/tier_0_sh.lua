@@ -10,7 +10,16 @@ function SWEP:IsScope()
 
     local owner = self:GetOwner()
 
-    return (owner.KeyDown and owner:KeyDown(IN_ATTACK2) and (owner:InFake() or owner:IsOnGround() or owner:InVehicle()) and self:CanFight("scope"))
+    if not owner.KeyDown or not owner:KeyDown(IN_ATTACK2) then return false end
+    if not (owner:InFake() or owner:IsOnGround() or owner:InVehicle()) then return false end
+
+    local sequenceObject = self.sequenceObject
+    if sequenceObject then
+        local sequenceName = tostring(sequenceObject.name or "")
+        if sequenceObject.fire or string.StartWith(sequenceName,"fire") then return true end
+    end
+
+    return self:CanFight("scope")
 end
 
 if SERVER then

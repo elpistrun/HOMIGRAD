@@ -1,3 +1,11 @@
+-- Keep this entry point safe even when a custom hinit loader enters the item
+-- tree before the inventory root files.
+inventoryManager = inventoryManager or ManagerCreate("inventory",{
+    "node",
+    "node_network",
+    "node_network_user"
+})
+
 local ITEM,NoInherit = inventoryManager:ItemReg("base",nil,true)
 if not ITEM then return INCLUDE_BREAK end
 
@@ -29,7 +37,7 @@ end
 if SERVER then return end
 
 function ITEM:NetUserStart()
-    net.Start("donatinventory_item_cmd")
+    net.CoroutineStart("donatinventory_item_cmd")
     net.WriteString(AccountSteamID64)
     net.WriteString(tostring(self.id))
 end
@@ -51,12 +59,7 @@ function ITEM:NetWait()
 end
 
 net.Receive("donatinventory_item_cmd",function(len,ply)
-    local item = inventoryManager.listGame[net.ReadString()][net.ReadString()]
-    if not item then return end
-
-    if not net.CoroutineResume("donatinventory_item_cmd") then
-        if item.InputUserCommand then item:InputUserCommand() end
-    end
+    net.CoroutineResume("donatinventory_item_cmd",net.ReadInt(7),len)
 end)
 
 // Draw

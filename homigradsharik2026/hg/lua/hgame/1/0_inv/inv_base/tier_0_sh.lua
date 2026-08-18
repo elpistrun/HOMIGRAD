@@ -10,13 +10,41 @@ end,-100)
 
 function INV:Think()
     if SERVER then
-        self:ServerThink()
-        self:EntsThink()
+        if self.ServerThink then self:ServerThink() end
+        if self.EntsThink then self:EntsThink() end
     end
 end
 
 if SERVER then
     INV.ServerThink = function() end
+
+    -- Remove inventory entries whose linked world/weapon entity has gone.
+    -- The original server implementation was absent from this addon dump.
+    function INV:EntsThink()
+        self.nextEntsThink = self.nextEntsThink or 0
+        if self.nextEntsThink > CurTime() then return end
+        self.nextEntsThink = CurTime() + 0.5
+
+        local changed = false
+        for x = 1,#self.slots do
+            for y = 1,#self.slots[x] do
+                local list = self.slots[x][y].list
+                for depth = #list,1,-1 do
+                    local item = list[depth]
+                    if item.ent ~= nil and not IsValid(item.ent) then
+                        table.remove(list,depth)
+                        changed = true
+                    end
+                end
+
+                for depth,item in ipairs(list) do
+                    item.depth = depth
+                end
+            end
+        end
+
+        if changed and self.Sync then self:Sync() end
+    end
 end
 
 function INV:ChangeSlots(w,h)

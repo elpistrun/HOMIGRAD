@@ -17,6 +17,10 @@ local function FinishUpdate(wep)
     wep:OnAttachmentUpdate()
 end
 
+local function Reply(ply,text)
+    if IsValid(ply) then ply:ChatPrint("[HG attachments] " .. text) end
+end
+
 concommand.Add("hg_attachment_set",function(ply,cmd,args)
     local wep = GetWeapon(ply)
     if not wep then return end
@@ -28,8 +32,12 @@ concommand.Add("hg_attachment_set",function(ply,cmd,args)
     local numberValue = tonumber(value)
     if numberValue != nil then value = numberValue end
 
-    local success = wep:AttachmentSet(path,value)
-    if success then FinishUpdate(wep) end
+    local success,err = wep:AttachmentSet(path,value)
+    if success then
+        FinishUpdate(wep)
+    else
+        Reply(ply,"ошибка: " .. tostring(err or "недопустимый attachment"))
+    end
 end)
 
 concommand.Add("hg_attachment_set_cosmetic",function(ply,cmd,args)

@@ -129,7 +129,8 @@ function SWEP:RenderSetupBones(wm)
     end
     
     for bone,matrix in pairs(wm.bones_matrix) do
-        if matrix:IsZero() then continue end
+        if not isnumber(bone) or matrix:IsZero() then continue end
+        if bone < 0 or bone >= wm:GetBoneCount() then continue end
         
         wm:SetBoneMatrixNow(bone,matrix)
     end

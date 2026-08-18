@@ -1,4 +1,4 @@
-inventoryManager = ManagerCreate("inventory",{"node","node_network","node_network_user"})
+inventoryManager = inventoryManager or ManagerCreate("inventory",{"node","node_network","node_network_user"})
 
 function inventoryManager:InputFull(body)
     for steamid64,items in pairs(JSONToTable(body)) do

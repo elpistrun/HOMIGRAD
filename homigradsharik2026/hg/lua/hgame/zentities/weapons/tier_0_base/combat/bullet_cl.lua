@@ -21,7 +21,7 @@ net.Receive("hg_wep_shoot",function()
 
     if IsValid(ent) and ent.CreateBullet then
         ent:CreateBullet(data)
-    else
+    elseif class and class.CreateBullet then
         class:CreateBullet(data)
     end
 end)
@@ -89,13 +89,27 @@ local Rand = math.Rand
 
 function SWEP:CreateBullet(data)
     local ammoBulletName = data.ammoBulletName or self:GetAmmoClass()
-    local bulletInfo = ammoGame.config[ammoBulletName].bulletInfo or {}
+    local calibre = self.Primary and self.Primary.AmmoCalibre
+    local ammo = ammoGame.config[ammoBulletName or ""]
+
+    if not ammo or (calibre and ammo.AmmoCalibre != calibre) then
+        ammoBulletName = calibre and ammoGame.callibreIndex[calibre] or nil
+        ammo = ammoGame.config[ammoBulletName or ""]
+    end
+
+    if not ammo then
+        ErrorNoHalt("[hg] No ammo config for " .. tostring(ammoBulletName) .. " / " .. tostring(calibre) .. "\n")
+        return false
+    end
+
+    local bulletInfo = ammo.bulletInfo or {}
 
     local count = bulletInfo.Count or 1
+    if ammo.AmmoCalibre != "12x70" then count = 1 end
 
     --debugoverlayNet.BoxAngles(pos,-Vector(1,1,1),Vector(1,1,1),ang,1,Color(255,125,0,0))
 
-    local renderTime = tonumber(data.renderTime)
+    local renderTime = tonumber(data.renderTime) or UnPredictedCurTime()
     local pos,ang = data.pos,data.ang
 
 	for i = 1,count do

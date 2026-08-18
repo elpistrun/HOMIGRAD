@@ -61,8 +61,8 @@ hook.Add("DrawOverlay","HOMIGRAD DONAT INVENTORY TEST",function()
     local new =  GetGlobalVar("Addon Version",start)
 
     if start == new then
-        draw.SimpleText("HOMIGRAD.COM " ..  GetGlobalVar("Addon Version",0) .. " COMMIT","H.12",scrw,scrh,nil,TEXT_ALIGN_RIGHT,TEXT_ALIGN_BOTTOM)
+        draw.SimpleText("KOPIGRAD.COM " ..  GetGlobalVar("Addon Version",0) .. " COMMIT","H.12",scrw,scrh,nil,TEXT_ALIGN_RIGHT,TEXT_ALIGN_BOTTOM)
     else
-        draw.SimpleText("HOMIGRAD.COM AVIABLE NEW " ..  GetGlobalVar("Addon Version",0) .. " COMMIT, CURRET " .. start,"H.12",scrw,scrh,yellow,TEXT_ALIGN_RIGHT,TEXT_ALIGN_BOTTOM)
+        draw.SimpleText("KOPIGRAD.COM AVIABLE NEW " ..  GetGlobalVar("Addon Version",0) .. " COMMIT, CURRET " .. start,"H.12",scrw,scrh,yellow,TEXT_ALIGN_RIGHT,TEXT_ALIGN_BOTTOM)
     end
 end)

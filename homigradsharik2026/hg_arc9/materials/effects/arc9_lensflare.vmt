@@ -1,0 +1,10 @@
+"Sprite"
+{
+	"$basetexture" "effects/arc9_lensflare"
+	
+	"$additive" 1
+	"$vertexalpha" 1
+	"$vertexcolor" 1
+	"$spriterendermode" 3
+	//"$ignorez" 0
+}

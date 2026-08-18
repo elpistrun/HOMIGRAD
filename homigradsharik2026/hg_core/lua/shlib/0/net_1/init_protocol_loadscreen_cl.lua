@@ -50,7 +50,7 @@ local function SkipProtocol()
     gui.EnableScreenClicker(false)
 end
 
-local descText = "Если ничего не происходит минуту, возможно что-то произошло с сервером.\nЕсли это так, то сообщите об этом на нашем дискорд сервере (ссылка на дискорд на сайте https://homigrad.com)"
+local descText = "Если ничего не происходит минуту, возможно что-то произошло с сервером.\nЕсли это так, то сообщите об этом на нашем дискорд сервере (ссылка на дискорд на сайте https://kopigrad.com)"
 
 local function ParseDesc()
     local ok,markup = pcall(markup.Parse,"<font=H25>" .. descText .. "</font>")
@@ -114,7 +114,7 @@ event.Add("RenderScene","Load Screen",function()
             InitProtocolError:Draw(w/2,h/1.5,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
  
             draw.SimpleText("Сообщите об этом на нашем дискорд сервере в форуме -> баги","H18",w /2 ,h - h / 12,color_red,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
-            draw.SimpleText("Ссылка на дискорд сервер есть на сайте https://homigrad.com","H18",w /2 ,h - h / 12 + 18,color_red,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+            draw.SimpleText("Ссылка на дискорд сервер есть на сайте https://kopigrad.com","H18",w /2 ,h - h / 12 + 18,color_red,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 
             cam.End2D()
 

@@ -87,8 +87,11 @@ local vector_zero,angle_zero = Vector(),Angle()
 
 function SWEP:CreateModelForWM(wm,model,tag,typeDraw)
     if not IsValid(wm) then return end
+    if TypeID(model) != TYPE_STRING or model == "" then return end
+    if not wm.container or not wm.container.GetByID then return end
     
     local mdl,isCreate = wm.container.GetByID(model,tag,typeDraw == true)
+    if not IsValid(mdl) then return end
     mdl.renderTime = nil
     mdl.parent = wm
     mdl:SetParent(wm)

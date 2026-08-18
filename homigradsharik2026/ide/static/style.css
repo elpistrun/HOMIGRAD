@@ -1,0 +1,208 @@
+/* === OpenIDE Web - Darcula Theme === */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; font-family: 'Segoe UI', 'Inter', sans-serif; background: #2b2b2b; color: #bbb; font-size: 13px; }
+
+/* === Menu Bar === */
+#menubar {
+    height: 34px; background: #3c3f41; display: flex; align-items: center;
+    border-bottom: 1px solid #2b2b2b; padding: 0 4px;
+}
+.menu-logo {
+    color: #a9b7c6; font-weight: 700; font-size: 14px; padding: 0 12px;
+    letter-spacing: 0.5px;
+}
+.menu-items { display: flex; gap: 0; }
+.menu-item {
+    padding: 5px 10px; cursor: pointer; color: #aaa; font-size: 12px;
+    border-radius: 4px;
+}
+.menu-item:hover { background: #4b6eaf; color: #fff; }
+.menu-right { margin-left: auto; padding-right: 8px; }
+#search-everywhere {
+    background: #45494a; border: 1px solid #5e6264; border-radius: 4px;
+    color: #999; padding: 4px 12px; font-size: 11px; width: 240px; outline: none;
+}
+#search-everywhere:focus { border-color: #4b6eaf; color: #bbb; }
+
+/* === Toolbar === */
+#toolbar {
+    height: 32px; background: #3c3f41; display: flex; align-items: center;
+    padding: 0 6px; gap: 2px; border-bottom: 1px solid #2b2b2b;
+}
+.tool-btn {
+    background: transparent; border: none; color: #a9b7c6; cursor: pointer;
+    padding: 4px 8px; border-radius: 4px; font-size: 14px;
+}
+.tool-btn:hover { background: #4b6eaf; }
+.tool-sep { width: 1px; height: 18px; background: #555; margin: 0 4px; }
+.toolbar-path { color: #888; font-size: 11px; margin-left: 8px; }
+
+/* === Main Layout === */
+#main { display: flex; flex: 1; overflow: hidden; }
+body { display: flex; flex-direction: column; }
+
+/* === Left Strip (Icon Bar) === */
+#left-strip {
+    width: 36px; background: #3c3f41; display: flex; flex-direction: column;
+    align-items: center; padding: 4px 0; gap: 2px; border-right: 1px solid #2b2b2b;
+}
+.strip-btn {
+    width: 28px; height: 28px; background: transparent; border: none;
+    color: #888; cursor: pointer; border-radius: 4px; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+}
+.strip-btn:hover { background: #4b6eaf; color: #fff; }
+.strip-btn.active { color: #a9b7c6; background: #4b6eaf33; }
+
+/* === Left Panel === */
+#left-panel {
+    width: 260px; min-width: 150px; background: #2b2b2b; display: flex;
+    flex-direction: column; overflow: hidden;
+}
+.panel-header {
+    height: 30px; background: #3c3f41; display: flex; align-items: center;
+    justify-content: space-between; padding: 0 10px; border-bottom: 1px solid #2b2b2b;
+}
+.panel-title { color: #a9b7c6; font-size: 12px; font-weight: 600; }
+.panel-actions { display: flex; gap: 2px; }
+.panel-actions button {
+    background: transparent; border: none; color: #888; cursor: pointer;
+    padding: 2px 6px; border-radius: 3px; font-size: 12px;
+}
+.panel-actions button:hover { background: #4b6eaf; color: #fff; }
+#file-tree { flex: 1; overflow-y: auto; padding: 2px 0; }
+
+/* File tree items */
+.tree-item {
+    display: flex; align-items: center; padding: 2px 8px; cursor: pointer;
+    white-space: nowrap; user-select: none; font-size: 12px; color: #a9b7c6;
+}
+.tree-item:hover { background: #3c3f41; }
+.tree-item.selected { background: #4b6eaf; color: #fff; }
+.tree-item .icon { width: 18px; text-align: center; margin-right: 4px; font-size: 11px; flex-shrink: 0; }
+.tree-item .name { overflow: hidden; text-overflow: ellipsis; }
+.tree-item .arrow { width: 14px; text-align: center; font-size: 8px; color: #777; flex-shrink: 0; transition: transform 0.15s; }
+.tree-item .arrow.open { transform: rotate(90deg); }
+.tree-children { padding-left: 14px; }
+.tree-children.collapsed { display: none; }
+
+/* === Resize Handles === */
+.resize-handle { width: 3px; cursor: col-resize; background: #2b2b2b; transition: background 0.15s; }
+.resize-handle:hover { background: #4b6eaf; }
+
+/* === Editor Area === */
+#editor-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+/* Tabs */
+#tabs {
+    height: 30px; background: #3c3f41; display: flex; align-items: flex-end;
+    overflow-x: auto; flex-shrink: 0; border-bottom: 1px solid #2b2b2b;
+}
+.tab {
+    display: flex; align-items: center; padding: 0 10px; height: 28px;
+    background: #3c3f41; border-right: 1px solid #2b2b2b; cursor: pointer;
+    white-space: nowrap; font-size: 12px; color: #888; position: relative;
+}
+.tab:hover { background: #45494a; }
+.tab.active { background: #2b2b2b; color: #a9b7c6; border-bottom: 2px solid #4b6eaf; }
+.tab .tab-name { overflow: hidden; text-overflow: ellipsis; margin-right: 6px; }
+.tab .tab-close {
+    width: 16px; height: 16px; display: flex; align-items: center;
+    justify-content: center; border-radius: 3px; font-size: 14px;
+    opacity: 0; transition: opacity 0.15s; color: #888;
+}
+.tab:hover .tab-close { opacity: 0.7; }
+.tab .tab-close:hover { opacity: 1; background: #555; color: #fff; }
+.tab.modified .tab-name::after { content: " ●"; color: #e8a838; font-size: 10px; }
+
+/* Editor Container */
+#editor-container { flex: 1; background: #2b2b2b; }
+
+/* === Right Panel === */
+#right-panel { width: 220px; background: #2b2b2b; display: flex; flex-direction: column; overflow: hidden; }
+#right-panel.hidden { display: none; }
+#structure-tree { flex: 1; overflow-y: auto; padding: 8px; color: #888; font-size: 12px; }
+
+/* === Bottom Area === */
+#bottom-area { border-top: 1px solid #2b2b2b; }
+#bottom-tabs {
+    height: 26px; background: #3c3f41; display: flex; align-items: center;
+    padding: 0 8px; gap: 0; border-bottom: 1px solid #2b2b2b;
+}
+.bottom-tab {
+    padding: 4px 12px; cursor: pointer; color: #888; font-size: 11px;
+    border-bottom: 2px solid transparent;
+}
+.bottom-tab:hover { color: #bbb; }
+.bottom-tab.active { color: #a9b7c6; border-bottom-color: #4b6eaf; }
+.badge { background: #4b6eaf; color: #fff; padding: 0 5px; border-radius: 8px; font-size: 10px; }
+#bottom-content { height: 120px; background: #2b2b2b; overflow: hidden; }
+#terminal-placeholder {
+    display: flex; align-items: center; justify-content: center;
+    height: 100%; color: #555; font-size: 12px;
+}
+
+/* === Status Bar === */
+#statusbar {
+    height: 22px; background: #3c3f41; display: flex; align-items: center;
+    justify-content: space-between; padding: 0 8px; font-size: 11px; color: #888;
+    border-top: 1px solid #2b2b2b;
+}
+.status-left, .status-right { display: flex; gap: 12px; }
+.status-item { cursor: default; }
+.status-item:hover { color: #bbb; }
+
+/* === Context Menu === */
+#context-menu {
+    position: fixed; background: #3c3f41; border: 1px solid #555;
+    border-radius: 4px; padding: 4px 0; min-width: 180px; z-index: 1000;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+}
+#context-menu.hidden { display: none; }
+.ctx-item { padding: 5px 20px; cursor: pointer; font-size: 12px; color: #a9b7c6; }
+.ctx-item:hover { background: #4b6eaf; color: #fff; }
+.ctx-sep { height: 1px; background: #555; margin: 3px 8px; }
+
+/* === Dropdown Menu === */
+#dropdown-menu {
+    position: fixed; background: #3c3f41; border: 1px solid #555;
+    border-radius: 4px; padding: 4px 0; min-width: 200px; z-index: 1000;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+}
+#dropdown-menu.hidden { display: none; }
+.dd-item { padding: 5px 20px; cursor: pointer; font-size: 12px; color: #a9b7c6; display: flex; justify-content: space-between; }
+.dd-item:hover { background: #4b6eaf; color: #fff; }
+.dd-item .shortcut { color: #777; font-size: 11px; }
+.dd-item:hover .shortcut { color: #aaa; }
+.dd-sep { height: 1px; background: #555; margin: 3px 8px; }
+
+/* === Dialogs === */
+.dialog-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6); z-index: 2000;
+    display: flex; align-items: center; justify-content: center;
+}
+.dialog {
+    background: #3c3f41; border: 1px solid #555; border-radius: 6px;
+    padding: 20px; min-width: 340px; box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+}
+.dialog h3 { margin-bottom: 12px; color: #a9b7c6; font-size: 14px; }
+.dialog input {
+    width: 100%; padding: 6px 10px; background: #45494a; border: 1px solid #5e6264;
+    border-radius: 4px; color: #a9b7c6; font-size: 13px; outline: none;
+}
+.dialog input:focus { border-color: #4b6eaf; }
+.dialog-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.dialog-buttons button { padding: 6px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
+.dialog-buttons .btn-ok { background: #4b6eaf; color: #fff; }
+.dialog-buttons .btn-ok:hover { background: #589df6; }
+.dialog-buttons .btn-cancel { background: #45494a; color: #aaa; }
+.dialog-buttons .btn-cancel:hover { background: #555; }
+
+/* === Scrollbar (Darcula) === */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #666; }
+::-webkit-scrollbar-track { background: #2b2b2b; }
+#file-tree::-webkit-scrollbar { width: 6px; }
+#file-tree::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }

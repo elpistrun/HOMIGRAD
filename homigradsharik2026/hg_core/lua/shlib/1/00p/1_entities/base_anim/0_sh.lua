@@ -38,6 +38,21 @@ function ENT:PlayAnimation(sequenceObject,callType)
 
     util.tableLink(sequenceObject,sequenceEntityData)
 
+    -- Visual-only sequences reuse model indices/sounds/graphs but must not run
+    -- gameplay callbacks belonging to inventory reload actions.
+    if sequenceObject.visualOnly then
+        sequenceObject.className = "base"
+        sequenceObject.Start = nil
+        sequenceObject.Think = nil
+        sequenceObject.Step = nil
+        sequenceObject.Load = nil
+        sequenceObject.Skip = nil
+        sequenceObject.Stop = nil
+        sequenceObject.SendLoad = nil
+        sequenceObject.DoNetLoad = nil
+        sequenceObject.NetData = nil
+    end
+
     animationEntity.PlayAnimationEx(self,sequenceObject,callType)
 
     self.sequenceObject = sequenceObject

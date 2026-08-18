@@ -11,6 +11,7 @@ local tr = hitBoxGame.CreateTraceTable()
 tr.mask = MASK_SHOT_HULL
 
 local ActionStart = function(self,cmd)
+    if not self:CanAttack() then return false,"cantAttack" end
     if self:IsCooldown("Primary",cmd.ply) then return false,"Cooldown Primary" end
     if self:IsTPIKRightInputBusy() or not self:TPIK_CanUseRightHand() then return false,"Some Hand Is Busy" end
 
@@ -25,7 +26,7 @@ local ActionStart = function(self,cmd)
     if SERVER then self:SyncAnimation() end
 
     if SERVER then
-        owner.stamina = owner.stamina - 2
+        owner:SetStamina(owner:GetStamina() - 2)
     end
 
     return true
@@ -34,7 +35,7 @@ end
 local function ActionConstruct(self,anim)
     anim.Load = function(object,cmd)
         local self = object.parent
-        local pos,ang
+        local pos,ang,renderTime
         
         if cmd then
             pos,ang,renderTime = cmd.pos,cmd.ang,cmd.renderTime
@@ -53,12 +54,73 @@ local function ActionConstruct(self,anim)
         
         local result = hitBoxGame.LagTraceHull(tr,renderTime,self:GetOwner():GetLagCompresionDebug() > 0)
         if result.Hit then self:HitPrimary(result) end
-
-        if SERVER then self:ServerAttack(cmd) end
     end
 end
 
-local action = SWEP:ConstructAnimationAction("attack_right",ActionStart,ActionConstruct,true)
+local function ServerTraceHands(owner,typeAttack)
+    local pos,ang = owner:Eye()
+
+    tr.ClearFilterTrace()
+    tr.filterTrace[owner:GetDummy()] = true
+
+    tr.start = pos
+    local dist = PlayerDisUse * (typeAttack == "Primary" and 0.8 or 0.75)
+    tr.endpos = pos + Vector(dist,0,0):Rotate(ang)
+    tr.mins = typeAttack == "Primary" and -Vector(0,10,1) or -Vector(0,3,1)
+    tr.maxs = typeAttack == "Primary" and Vector(0,-1,1) or Vector(0,4,1)
+
+    local nativeTrace = {
+        start = tr.start,
+        endpos = tr.endpos,
+        mins = tr.mins,
+        maxs = tr.maxs,
+        mask = MASK_SHOT_HULL,
+        filter = function(ent)
+            return not tr.filterTrace[ent]
+        end
+    }
+
+    owner:LagCompensation(true)
+    local result = util.TraceHull(nativeTrace)
+    owner:LagCompensation(false)
+
+    result.start = result.StartPos
+    result.endpos = result.HitPos
+    return result
+end
+
+local function ScheduleServerHandsLoad(self,sequenceObject,cmd,typeAttack)
+    if not SERVER or not sequenceObject then return end
+
+    self.handsLoadToken = (self.handsLoadToken or 0) + 1
+    local token = self.handsLoadToken
+    local delay = math.max((tonumber(sequenceObject.delay) or 0.5) * (tonumber(sequenceObject.load) or 0.5),0.05)
+
+    timer.Simple(delay,function()
+        if not IsValid(self) or self.handsLoadToken != token then return end
+        if self.sequenceObject != sequenceObject or sequenceObject.m_load then return end
+        if not IsValid(self:GetOwner()) or self:GetOwner():GetActiveWeapon() != self then return end
+
+        local result = ServerTraceHands(self:GetOwner(),typeAttack)
+        if result.Hit then
+            if typeAttack == "Primary" then
+                self:HitPrimary(result)
+            else
+                self:HitSecondary(result)
+            end
+        end
+        sequenceObject.m_load = true
+    end)
+end
+
+local action = SWEP:ConstructAnimationAction("attack_right",function(self,cmd)
+    local result = ActionStart(self,cmd)
+    if result then
+        local seq = self.sequenceObject
+        if seq then ScheduleServerHandsLoad(self,seq,cmd,"Primary") end
+    end
+    return result
+end,ActionConstruct,true)
 
 local ActionStart = function(self,cmd)
     if not self:CanAttack() then return false,"cantAttack" end
@@ -76,7 +138,7 @@ local ActionStart = function(self,cmd)
     if SERVER then self:SyncAnimation() end
 
     if SERVER then
-        owner.stamina = owner.stamina - 2
+        owner:SetStamina(owner:GetStamina() - 2)
     end
 
     return true
@@ -104,12 +166,17 @@ local function ActionConstruct(self,anim)
         
         local result = hitBoxGame.LagTraceHull(tr,renderTime,self:GetOwner():GetLagCompresionDebug() > 0)
         if result.Hit then self:HitSecondary(result) end
-
-        if SERVER then self:ServerAttack(cmd) end
     end
 end
 
-local action = SWEP:ConstructAnimationAction("attack_left",ActionStart,ActionConstruct,true)
+local action = SWEP:ConstructAnimationAction("attack_left",function(self,cmd)
+    local result = ActionStart(self,cmd)
+    if result then
+        local seq = self.sequenceObject
+        if seq then ScheduleServerHandsLoad(self,seq,cmd,"Secondary") end
+    end
+    return result
+end,ActionConstruct,true)
 
 SWEP:Event_Add("SetupDataTables","Combat",function(self)
     self:NetworkVar("Bool","FightState")
@@ -269,5 +336,39 @@ end)
 if CLIENT then
     function SWEP:OnThink()
         self:OnFightBlockThink()
+    end
+end
+
+if SERVER then
+    local function ApplyPunchDamage(self,result,damage)
+        local owner = self:GetOwner()
+        local target = result.Entity
+        if not IsValid(owner) or not IsValid(target) then return end
+
+        local ctrl = target:GetController()
+        local entity = IsValid(ctrl) and ctrl or target
+
+        local dmgTab = CreateDamageTab(entity,owner,self,damage,DMG_CLUB)
+        dmgTab.isMelee = true
+        dmgTab.pos = result.HitPos
+        dmgTab.ent = target
+        dmgTab.bone = result.HitBone
+
+        local force = owner:GetAimVector() * (damage * 35)
+        dmgTab.force = force
+        dmgTab.forcePhys = force
+        dmgTab.forcePhysRagdoll = force * 10
+
+        DamageTab_ParseBone(dmgTab)
+
+        entity:TakeDamageTab(dmgTab)
+    end
+
+    function SWEP:HitPrimary(result)
+        ApplyPunchDamage(self,result,12)
+    end
+
+    function SWEP:HitSecondary(result)
+        ApplyPunchDamage(self,result,9)
     end
 end

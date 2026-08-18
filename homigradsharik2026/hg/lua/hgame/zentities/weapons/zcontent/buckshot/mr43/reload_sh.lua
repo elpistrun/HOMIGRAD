@@ -16,7 +16,15 @@ function(self,cmd)
     if self.chamber1 != false or self.chamber2 != false then return false,"chamber" end
 
     local ammo = self:ActionCMD_GetAmmoClient(cmd)
-    if not ammo then return false,"No ammo" end
+    if not ammo then
+        local ammoName = ammoGame.callibreIndex[self.Primary.AmmoCalibre]
+        self.chamber1 = ammoName
+        self.chamber2 = ammoName
+        self:SetClip1(2)
+        self:PlayAnimation({name = "mr43_reload2",className = "base",sandboxFallback = true})
+        if SERVER then self:SyncAnimation() end
+        return true
+    end
 
     self:PlayAnimationAction({name = "mr43_reload2",ammo = ammo})
     if SERVER then self:SyncAnimation() end
@@ -70,7 +78,13 @@ function(self,cmd)
     if self.chamber1 != false then return false,"chamber" end
 
     local ammo = self:ActionCMD_GetAmmoClient(cmd)
-    if not ammo then return false,"No ammo" end
+    if not ammo then
+        self.chamber1 = ammoGame.callibreIndex[self.Primary.AmmoCalibre]
+        self:SetClip1((self.chamber1 and 1 or 0) + (self.chamber2 and 1 or 0))
+        self:PlayAnimation({name = "mr43_reload1",className = "base",sandboxFallback = true})
+        if SERVER then self:SyncAnimation() end
+        return true
+    end
 
     self:PlayAnimationAction({name = "mr43_reload1",ammo = ammo})
     if SERVER then self:SyncAnimation() end

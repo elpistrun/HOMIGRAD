@@ -24,7 +24,7 @@ hook.Add("HUDPaint","FakeDeath",function()
     k = math.min(k * 10,1)
 
     if active then
-        if ply:KeyDown(IN_FORWARD) or ply:KeyDown(IN_BACK) or ply:KeyDown(IN_LEFT) or ply:KeyDown(IN_RIGHT) or ply:KeyDown(IN_USE) or ply:KeyDown(IN_ATTACK2) or ply:KeyDown(IN_ATTACK) then
+        if ply:KeyDown(IN_FORWARD) or ply:KeyDown(IN_BACK) or ply:KeyDown(IN_LEFT) or ply:KeyDown(IN_RIGHT) then
             RunConsoleCommand("fake_dead","0")
         end
     end

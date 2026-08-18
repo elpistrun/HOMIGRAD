@@ -64,11 +64,11 @@ function ITEM:GetDesc() return types[self:GetType()] and types[self:GetType()].d
 Выдаётся навсегда.
 
 Купить её можно за Donat Balance,
-а пополнить Donat Balance можно на нашем сайте https://homigrad.com/shop/
+а пополнить Donat Balance можно на нашем сайте https://kopigrad.com/shop/
 
 Рекомендую перед покупкой ознакомится с нашими правилами проекта!
 Иначе за многочисленые нарушения мы можем снять с вас привелегию!
-https://homigrad.com/wiki/rules/
+https://kopigrad.com/wiki/rules/
 ]]
 end
 
@@ -82,46 +82,46 @@ function ITEM:CreateDescPanel(panel)
         butt:SetupDrawStyle("white") butt.font = "HS.18"
         function butt:DrawText(w,h)
             draw.SimpleText("ПОДРОБНОСТИ ПЛЮШЕК ПРИВЕЛЕГИИ",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
-            draw.SimpleText("https://homigrad.com/role/",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP)
+            draw.SimpleText("https://kopigrad.com/role/",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP)
             draw.SimpleText("нажмите на эту кнопку что-бы открыть сайт","H.12",w/2,h - 6,color_gray,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
         end
-        function butt:OnClick() gui.OpenURL("https://homigrad.com/role/") end
+        function butt:OnClick() gui.OpenURL("https://kopigrad.com/role/") end
 
         local butt = oop.CreatePanel("v_button",panel):ad(function(self,w,h) self:setSize(w,h/3):setPos(0,h/3) end)
         butt:SetupDrawStyle("white") butt.font = "HS.18"
         function butt:DrawText(w,h)
             draw.SimpleText("ПРАВИЛА НАШЕГО ПРОЕКТА",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
-            draw.SimpleText("https://homigrad.com/wiki/rules/",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP)
+            draw.SimpleText("https://kopigrad.com/wiki/rules/",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP)
             draw.SimpleText("нажмите на эту кнопку что-бы открыть сайт","H.12",w/2,h - 6,color_gray,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
         end
-        function butt:OnClick() gui.OpenURL("https://homigrad.com/wiki/rules/") end
+        function butt:OnClick() gui.OpenURL("https://kopigrad.com/wiki/rules/") end
 
         local butt = oop.CreatePanel("v_button",panel):ad(function(self,w,h) self:setSize(w,h/3):setPos(0,h/3*2) end)
         butt:SetupDrawStyle("white") butt.font = "HS.18"
         function butt:DrawText(w,h)
             draw.SimpleText("ПОПОЛНЕНИЕ DONAT BALANCE",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
-            draw.SimpleText("https://homigrad.com/shop/",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP)
+            draw.SimpleText("https://kopigrad.com/shop/",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP)
             draw.SimpleText("нажмите на эту кнопку что-бы открыть сайт","H.12",w/2,h - 6,color_gray,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
         end
-        function butt:OnClick() gui.OpenURL("https://homigrad.com/shop/") end
+        function butt:OnClick() gui.OpenURL("https://kopigrad.com/shop/") end
     else
         local butt = oop.CreatePanel("v_button",panel):ad(function(self,w,h) self:setSize(w,h/3) end)
         butt:SetupDrawStyle("white") butt.font = "HS.18"
         function butt:DrawText(w,h)
             draw.SimpleText("ПОДРОБНОСТИ ПЛЮШЕК ПРИВЕЛЕГИИ",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
-            draw.SimpleText("https://homigrad.com/role/",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP)
+            draw.SimpleText("https://kopigrad.com/role/",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP)
             draw.SimpleText("нажмите на эту кнопку что-бы открыть сайт","H.12",w/2,h - 6,color_gray,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
         end
-        function butt:OnClick() gui.OpenURL("https://homigrad.com/role/") end
+        function butt:OnClick() gui.OpenURL("https://kopigrad.com/role/") end
         
         local butt = oop.CreatePanel("v_button",panel):ad(function(self,w,h) self:setSize(w,h/3):setPos(0,h/3) end)
         butt:SetupDrawStyle("white") butt.font = "HS.18"
         function butt:DrawText(w,h)
             draw.SimpleText("ПРАВИЛА НАШЕГО ПРОЕКТА",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
-            draw.SimpleText("https://homigrad.com/wiki/rules/",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP)
+            draw.SimpleText("https://kopigrad.com/wiki/rules/",self.font,w/2,h/2,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP)
             draw.SimpleText("нажмите на эту кнопку что-бы открыть сайт","H.12",w/2,h - 6,color_gray,TEXT_ALIGN_CENTER,TEXT_ALIGN_BOTTOM)
         end
-        function butt:OnClick() gui.OpenURL("https://homigrad.com/wiki/rules/") end
+        function butt:OnClick() gui.OpenURL("https://kopigrad.com/wiki/rules/") end
 
         //
         

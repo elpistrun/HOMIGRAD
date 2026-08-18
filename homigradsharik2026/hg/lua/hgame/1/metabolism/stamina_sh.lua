@@ -12,18 +12,44 @@ function PLAYER:SetStamina(value)
 	if SERVER then self:SetNW2Float("stamina",self.stamina) end
 end
 
+function PLAYER:RelieveBreath(value)
+	if not SERVER then return end
+	self.breathLoad = math.max((self.breathLoad or 0) - (tonumber(value) or 0),0)
+	self:SetNW2Float("breath_load",self.breathLoad)
+end
+
 if SERVER then
+	util.AddNetworkString("breath")
+	util.AddNetworkString("cough")
+
+	local function SendBreath(ply,strength)
+		local delay = Lerp(math.Clamp(strength,0,1),0.95,0.32)
+		ply.breathModeOut = not ply.breathModeOut
+
+		net.Start("breath")
+		net.WriteEntity(ply)
+		net.WriteString(tostring(delay))
+		net.WriteBool(not ply.breathModeOut)
+		net.SendPVS(ply:GetPos())
+
+		ply.nextBreathAt = CurTime() + delay
+	end
+
 	local function ResetMetabolism(ply)
 		ply.stamina = 100
 		ply.hungry = 10
 		ply.blood = ply.blood or 5000
 		ply.staminaRegenAt = 0
+		ply.breathLoad = 0
+		ply.nextBreathAt = 0
+		ply.breathModeOut = false
 
 		ply:SetNW2Float("stamina",ply.stamina)
 		ply:SetNW2Float("hungry",ply.hungry)
 		ply:SetNW2Float("blood",ply.blood)
 		ply:SetNW2Float("staminamul",1)
 		ply:SetNW2Float("pulse",1 / 80)
+		ply:SetNW2Float("breath_load",0)
 	end
 
 	hook.Add("PlayerSpawn","HG Metabolism Reset",ResetMetabolism)
@@ -44,17 +70,34 @@ if SERVER then
 				and not ply:InFake()
 
 			if running and ply.stamina > 0 and not ply.stopStamina then
-				local drain = {14 * dt * (ply.mulStamina or 1)}
+				-- Roughly fifteen seconds of continuous sprint with no equipment
+				-- modifiers. The old value emptied the bar in about seven seconds.
+				local drain = {6.5 * dt * (ply.mulStamina or 1)}
 				event.Call("Stamina Sub",ply,drain)
-				ply.stamina = math.max(ply.stamina - (drain[1] or 0),0)
-				ply.staminaRegenAt = CurTime() + 1.25
+				local spent = math.max(drain[1] or 0,0)
+				ply.stamina = math.max(ply.stamina - spent,0)
+				ply.breathLoad = math.min((ply.breathLoad or 0) + spent,100)
+				ply.staminaRegenAt = CurTime() + 0.9
 			elseif (ply.staminaRegenAt or 0) <= CurTime() then
 				local hungerMul = 0.35 + ply.hungry / 10 * 0.65
-				ply.stamina = math.min(ply.stamina + 10 * hungerMul * dt,100)
+				ply.stamina = math.min(ply.stamina + 9 * hungerMul * dt,100)
+			end
+
+			-- The longer the sprint, the louder/faster and longer the recovery
+			-- breathing. A tiny sprint does not trigger it.
+			if not running and (ply.breathLoad or 0) >= 8 then
+				local strength = ply.breathLoad / 100
+				if (ply.nextBreathAt or 0) <= CurTime() then SendBreath(ply,strength) end
+				ply.breathLoad = math.max(ply.breathLoad - (1.5 + strength * 2.5) * dt,0)
+			elseif not running then
+				ply.breathLoad = math.max((ply.breathLoad or 0) - 5 * dt,0)
 			end
 
 			local exhausted = 1 - ply.stamina / 100
-			local speedMul = math.Clamp(1 - exhausted * 0.5,0.5,1)
+			-- Preserve normal running speed for most of the bar. Only the final
+			-- 20% gradually slows the player, without the former 50% speed cliff.
+			local lowStamina = math.Clamp(ply.stamina / 20,0,1)
+			local speedMul = Lerp(lowStamina,0.8,1)
 			local bpm = 80 + exhausted * 80
 
 			ply:SetNW2Float("stamina",ply.stamina)
@@ -62,6 +105,7 @@ if SERVER then
 			ply:SetNW2Float("blood",ply.blood)
 			ply:SetNW2Float("staminamul",speedMul)
 			ply:SetNW2Float("pulse",1 / bpm)
+			ply:SetNW2Float("breath_load",ply.breathLoad or 0)
 		end
 	end)
 end

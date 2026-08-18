@@ -179,6 +179,7 @@ SWEP:ConstructAnimationAction("attack_primary2",
 
         local sequenceObject = self:PlayAnimation("attack_primary2")
         sequenceObject.typeAttack = "Primary"
+        self:ScheduleServerMeleeLoad(sequenceObject,cmd)
         
         if SERVER then self:SyncAnimation() end
 

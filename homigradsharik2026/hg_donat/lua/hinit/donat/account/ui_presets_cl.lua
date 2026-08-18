@@ -19,6 +19,11 @@ function PageSub.Open(frame)
     local button = oop.CreatePanel("v_button",frame):ad(function(self,w,h) self:setSize(w,60):setPos(0,h - self:H()) end)
     button:SetupDrawStyle("white_gradient"); button.gradientSide = "bottom"; button.text = L("donat_ui_outfit_model"); button.font = "HS.18"
     function button.OnClick()
+        if not selectItem then
+            chat.AddText(Color(255,100,100),"Сначала выберите предмет/модель.")
+            return
+        end
+
         outfitManager:CoroutineWrap(function()
             sound.EmitScreen("homigrad/vgui/csgo_ui_store_select.wav",0.5)
             button:SetLock(true)

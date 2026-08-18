@@ -50,6 +50,10 @@ function SWEP:EatValue(ent)
     ent.hungry = math.min((ent.hungry or 10) + (self.HungryAdd or 0) / self.MaxValue,10)
     ent.blood = math.min((ent.blood or 5000) + 30 * (self.HungryAdd or 0) / self.MaxValue,5000)
     ent:SetStamina((ent.stamina or 100) + (self.StaminaAdd or 0) / self.MaxValue)
+
+    if self.BreathRelief and ent.RelieveBreath then
+        ent:RelieveBreath(self.BreathRelief / self.MaxValue)
+    end
 end
 
 SndEat = SndEat or {}

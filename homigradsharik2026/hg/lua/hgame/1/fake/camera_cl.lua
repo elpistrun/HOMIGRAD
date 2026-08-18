@@ -8,9 +8,14 @@ local lerp = 0
 
 local MatrixSet = Matrix()
 local MatrixSetLocal = Matrix()
+-- Third person camera offset (behind and above the head)
 MatrixSetLocal:SetAngles(Angle(0,-83,-90))
 
 local VecSet,AngSet = Vector(),Angle()
+
+-- Third person camera distance and height
+local thirdPersonDist = 60
+local thirdPersonHeight = 20
 
 event.Add("PreCalcView","Ragdoll",function(ply,view)
 	if not ply:Alive() then
@@ -25,10 +30,20 @@ event.Add("PreCalcView","Ragdoll",function(ply,view)
 	
 	view.noSmooth = true
 
-	local headBone = dummy:LookupBone("ValveBiped.Bip01_Head1")
+	local headBone = dummy:LookupBone("ValveBiped.Bip01_Head1") or dummy:LookupBone("bip_head")
 	if not headBone then return end
 
 	dummy:CopyBoneMatrixHash(headBone,MatrixSet)
+	
+	-- Apply third person offset: pull camera back and up
+	local headPos = MatrixSet:GetTranslation()
+	local headAng = MatrixSet:GetAngles()
+	local forward = headAng:Forward()
+	local up = headAng:Up()
+	
+	-- Camera position: behind and above the head
+	local cameraPos = headPos - forward * thirdPersonDist + up * thirdPersonHeight
+	MatrixSet:SetTranslation(cameraPos)
 	
 	MatrixSet:Mul(MatrixSetLocal)
 
@@ -49,4 +64,7 @@ event.Add("PreCalcView","Ragdoll",function(ply,view)
 	lerp = LerpFT(0.33,lerp,lerpSet)
 
 	view.ang:Lerp(lerp,lerpHeadAng)
+	
+	-- Set view origin to camera position
+	view.origin = cameraPos
 end,-10)

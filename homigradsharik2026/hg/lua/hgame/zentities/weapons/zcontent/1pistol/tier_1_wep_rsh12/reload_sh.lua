@@ -139,6 +139,14 @@ end)
 
 SWEP:ConstructAnimationAction("rev_insert",
 function(self,cmd)
+    -- Server-side: handle stop signal (player released R)
+    if SERVER and cmd.sendLoad == 1 then
+        self:PlayAnimation({name = "drum_end"})
+        self.animIteration = 1
+        self:SyncAnimation()
+        return true
+    end
+
     local clip = cmd.clip or self:Clip1()
     if clip == self:GetMaxClip1() then return false,"Clip1 == GetMaxClip1" end
     
@@ -149,6 +157,17 @@ function(self,cmd)
 
     clip = cmd.clip or self:Clip1()
     self:PlayAnimationAction({name = "rev_insert",ammo = ammo,clip = clip})
+
+    -- Server-side: consume ammo immediately when starting a new insert cycle
+    if SERVER then
+        inventoryGame.TakeResource(ammo,1)
+        local max = self:GetMaxClip1()
+        local newClip = math.min(clip + 1,max)
+        self:SetClip1(newClip)
+        self:SetChamberCount(newClip)
+        self:SetAmmoClass(ammo.data.ammoName)
+    end
+
     if SERVER then self:SyncAnimation() end
 
     return true
@@ -178,10 +197,20 @@ function(self,anim)
     anim.Load = function(object,cmd)
         if not object.isLocal then return end
 
-        inventoryGame.TakeResource(object.ammo,1)
-
         local self = object.parent
         local max = self:GetMaxClip1()
+
+        if SERVER then
+            -- Server-side: ammo is consumed in the Start function (funcAction).
+            -- The base_load Think calls Load at cycle 1.0 — on the server this
+            -- is a no-op because DoNetLoad handles the server path instead.
+            return
+        end
+
+        -- Client-side only from here
+        local stop = cmd and cmd.sendLoad == 1
+
+        inventoryGame.TakeResource(object.ammo,1)
 
         object.clip = math.min(object.clip + 1,max)
 
@@ -189,19 +218,15 @@ function(self,anim)
         self:SetChamberCount(object.clip)
         self:SetAmmoClass(object.ammo.data.ammoName)
 
-        local stop = cmd and cmd.sendLoad == 1
+        stop = ClientLastAttackDownTime + 0.3 > RealTime()
 
-        if CLIENT then
-            stop = ClientLastAttackDownTime + 0.3 > RealTime()
-
-            self:SendAction({name = "rev_insert",sendLoad = stop and 1 or 0})
-        end
+        self:SendAction({name = "rev_insert",sendLoad = stop and 1 or 0})
 
         if object.clip < max then
             if stop then
                 object:DrumEnd()
             else
-                if CLIENT then self:DoAction({name = "rev_insert",clip = object.clip}) end
+                self:DoAction({name = "rev_insert",clip = object.clip})
             end
         else
             object:DrumEnd()

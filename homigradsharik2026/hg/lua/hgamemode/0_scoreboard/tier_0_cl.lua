@@ -318,7 +318,9 @@ function scoreboard:OpenPage(prio,force)
         return
     end
 
-    if not force and self.curretPage == prio then return end
+    -- A page may have returned early while waiting for network data. Do not
+    -- treat an empty current page as already opened.
+    if not force and self.curretPage == prio and self:PageIsCreated(prio) then return end
 
     local oldCurretPage = self.curretPage
     if oldCurretPage and self.pages[oldCurretPage].Hovered and self:PageIsCreated(oldCurretPage) then self.pages[oldCurretPage].Hovered(false) end
@@ -406,7 +408,7 @@ hook.Add("HUDPaintBackground","Scoreboard",function()
     DrawBlur(2,0,0)
 
     color.a = 5 * scoreboard.close
-    draw.SimpleText("HOMIGRAD.COM","H.45",w/2,h/2,color,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+    draw.SimpleText("KOPIGRAD.COM","H.45",w/2,h/2,color,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 
     if scoreboard.close > 0 then
         showRoundInfo = RealTime() + 3.5

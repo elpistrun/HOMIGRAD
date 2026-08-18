@@ -188,7 +188,7 @@ SWEP.AnimationList["attack_throw"] = {
         if not object.isLocal then return end
 
         if CLIENT and object:GetCycle() > object.skip then
-            object.parent:DoAction({name = "attack_secondary",flag = 3})
+            object.parent:DoAction({name = "attack_throw",flag = 3})
         end
     end,
 

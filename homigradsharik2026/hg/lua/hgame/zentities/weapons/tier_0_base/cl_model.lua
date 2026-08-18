@@ -49,8 +49,7 @@ function SWEP:InitWorldModelMagazine(wm,tag,typeDraw,model)
         local wm = self.wm
         if not IsValid(wm) then return end--lol
 
-        local chamberBodygroup = self.wmData.chamberBodygroup
-        if not chamberBodygroup then return end
+        local chamberBodygroup = self.wmData and self.wmData.chamberBodygroup
 
         local sequenceObject,cycle = self:GetSequenceData("start")
         
@@ -62,7 +61,9 @@ function SWEP:InitWorldModelMagazine(wm,tag,typeDraw,model)
             canDraw = false
         end
 
-        self:SetupModelChamber(wm,viewChamber,canDraw)
+        if chamberBodygroup then
+            self:SetupModelChamber(wm,viewChamber,canDraw)
+        end
 
         return canDraw
     end

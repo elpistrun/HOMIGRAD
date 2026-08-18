@@ -9,6 +9,10 @@ function ANM:StartPost()
 
     ply:SetCooldown("footkick",0.6 + ply:GetMetabolismStaminaDelay() * 5)
 
+    if SERVER then
+        ply:SetStamina(ply:GetStamina() - 5)
+    end
+
     if CLIENT then
         sound.Emit(ply:EntIndex(),"weapons/melee/matelbat/bat_draw.wav",75,1,90,ply:GetPos() + ply:OBBCenter())
     end

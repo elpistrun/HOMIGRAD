@@ -20,7 +20,17 @@ function ENTITY:SetBoneMatrix(boneID,matrix)--лутче не юзать
 end
 
 function ENTITY:SetBoneMatrixNow(bone,matrix)
+    if not isnumber(bone) or bone < 0 or bone >= self:GetBoneCount() then return false end
+    if not matrix or self:GetBoneName(bone) == "__INVALIDBONE__" then return false end
+    if not HGetBoneMatrix(self,bone) then return false end
+
+    if self.GetBoneFlags and BONE_USED_BY_ANYTHING then
+        local flags = self:GetBoneFlags(bone)
+        if flags and bit.band(flags,BONE_USED_BY_ANYTHING) == 0 then return false end
+    end
+
     HSetBoneMatrix(self,bone,matrix)
+    return true
 end
 
 local matrix_zero = Matrix()

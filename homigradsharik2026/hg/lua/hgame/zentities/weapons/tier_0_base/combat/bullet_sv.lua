@@ -3,9 +3,18 @@ if not SWEP then return end
 
 util.AddNetworkString("hg_wep_shoot")
 
-local function GetBulletInfo(ammoName)
-    local ammo = ammoGame.config[ammoName]
-    return ammo and ammo.bulletInfo or {}
+local function ResolveAmmo(self,ammoName)
+    local calibre = self.Primary and self.Primary.AmmoCalibre
+    local ammo = ammoGame.config[ammoName or ""]
+
+    -- A stale magazine/ammo class must never change the weapon calibre. This
+    -- was the source of pistols/rifles receiving 12x70 Count=9.
+    if not ammo or (calibre and ammo.AmmoCalibre != calibre) then
+        ammoName = calibre and ammoGame.callibreIndex[calibre] or nil
+        ammo = ammoGame.config[ammoName or ""]
+    end
+
+    return ammoName,ammo or {}
 end
 
 function SWEP:CreateBullet(data)
@@ -13,8 +22,11 @@ function SWEP:CreateBullet(data)
     if not IsValid(owner) then return false end
 
     local ammoName = data.ammoBulletName or self:GetAmmoClass()
-    local bulletInfo = GetBulletInfo(ammoName)
+    local ammo
+    ammoName,ammo = ResolveAmmo(self,ammoName)
+    local bulletInfo = ammo.bulletInfo or {}
     local count = math.max(bulletInfo.Count or 1,1)
+    if ammo.AmmoCalibre != "12x70" then count = 1 end
     local pos = data.pos or owner:GetShootPos()
     local ang = data.ang or owner:EyeAngles()
     local spray = bulletInfo.Spray or 0
@@ -43,7 +55,12 @@ function SWEP:CreateBullet(data)
     net.WriteInt(self:EntIndex(),14)
     net.WriteVector(pos)
     net.WriteAngle(ang)
-    net.SendPVS(pos)
+    -- The owner already creates the predicted client effect. Sending the same
+    -- packet back to them played the close/distant gunshot layers twice.
+    local recipients = RecipientFilter()
+    recipients:AddPVS(pos)
+    recipients:RemovePlayer(owner)
+    net.Send(recipients)
 
     return true
 end

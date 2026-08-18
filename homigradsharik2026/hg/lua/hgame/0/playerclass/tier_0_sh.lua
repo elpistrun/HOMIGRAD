@@ -77,6 +77,7 @@ net.Receive("setupclass",function()
         if oldClass and oldClass.Off then oldClass.Off(self) end
     end
 
-    ply.PlayerClassName = net.ReadString()
-    ply:PlayerClassEvent("On")
+    local class = net.ReadString()
+    ply.PlayerClassName = class ~= "" and class or nil
+    if ply.PlayerClassName then ply:PlayerClassEvent("On") end
 end)

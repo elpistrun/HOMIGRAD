@@ -293,6 +293,11 @@ function PageSub.Open(frame)
     butt:SetupDrawStyle("white"); butt.text = "Upgrade"; butt.font = "HS.18"
     
     function butt.OnClick()
+        if not selectItem then
+            chat.AddText(Color(255,100,100),"Сначала выберите предмет/модель.")
+            return
+        end
+
         MainThread:CoroutineWrap(function()
             butt:SetLock(true)
             

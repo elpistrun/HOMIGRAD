@@ -137,7 +137,7 @@ function Page.Open(frame)
         render.SuppressEngineLighting(false)
     end
     
-    function button:OnClick() gui.OpenURL("https://homigrad.com/shop") end
+    function button:OnClick() gui.OpenURL("https://kopigrad.com/shop") end
 end
 
 function Page.Hovered(value)

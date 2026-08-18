@@ -36,9 +36,6 @@ end)
 
 //
 
-local math_hand1 = Material("icon32/hand_point_180.png")
-local math_hand2 = Material("icon32/hand_point_090.png")
-
 local Clamp = math.Clamp
 
 hook.Add("HUDPaint","Fake",function()
@@ -51,26 +48,6 @@ hook.Add("HUDPaint","Fake",function()
     if rag == ply then return end
     
     local w,h = ScrW(),ScrH()
-
-    if ply:GetNW2Bool("LeftArm") then
-        local mat = rag:GetBoneMatrix(rag:LookupBone("ValveBiped.Bip01_L_Hand"))
-        local pos = (mat:GetTranslation():Add(Vector(6,-3,0):Rotate(mat:GetAngles()))):ToScreen()
-        pos.x = Clamp(pos.x,w / 2 - w / 4,w / 2 + w / 4)
-        pos.y = Clamp(pos.y,h / 2 - h / 4,h / 2 + h / 4)
-
-        surface.SetMaterial(math_hand2)
-        surface.DrawTexturedRectRotated(pos.x,pos.y,64,64,-90 + 25)
-    end
-
-    if ply:GetNW2Bool("RightArm") then
-        local mat = rag:GetBoneMatrix(rag:LookupBone("ValveBiped.Bip01_R_Hand"))
-        local pos = (mat:GetTranslation():Add(Vector(6,-3,0):Rotate(mat:GetAngles()))):ToScreen()
-        pos.x = Clamp(pos.x,w / 2 - w / 4,w / 2 + w / 4)
-        pos.y = Clamp(pos.y,h / 2 - h / 4,h / 2 + h / 4)
-
-        surface.SetMaterial(math_hand1)
-        surface.DrawTexturedRectRotated(pos.x,pos.y,-64,-64,180 - 25)
-    end
 
     local wep = ply:GetActiveWeapon()
 

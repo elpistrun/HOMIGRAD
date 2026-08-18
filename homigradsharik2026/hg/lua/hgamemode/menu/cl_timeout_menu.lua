@@ -91,7 +91,7 @@ concommand.Add("hg_show_timeout_menu",function()//len delat norm 3aproc, зат�
                 start = time
 
                 HTTP({
-                    url = "https://homigrad.com/status/" .. string.gsub(game.GetIPAddress(),":","_"),
+                    url = "https://kopigrad.com/status/" .. string.gsub(game.GetIPAddress(),":","_"),
                     method = "GET",
                     success = function(code,body,headers)
                         print(body)

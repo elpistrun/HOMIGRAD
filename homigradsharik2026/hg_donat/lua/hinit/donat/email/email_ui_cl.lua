@@ -177,8 +177,8 @@ function Page.Open(frame)
                 }
             </style>
             <head>
-                <link rel="stylesheet" href="https://homigrad.com/resource/main.css">
-                <link rel="stylesheet" href="https://homigrad.com/wiki/main.css">
+                <link rel="stylesheet" href="https://kopigrad.com/resource/main.css">
+                <link rel="stylesheet" href="https://kopigrad.com/wiki/main.css">
             </head>
             ]] .. html .. [[
         ]])
@@ -315,15 +315,28 @@ function Page.Open(frame)
             }
         end
 
+        if not selectedEmail then
+            local _,firstEmail = next(listEmailsData)
+            selectedEmail = firstEmail
+        end
+        selectedEmail.content = selectedEmail.content or {name = "Example",desc = "Desc",html = ""}
+        selectedEmail.content.name = selectedEmail.content.name or ""
+        selectedEmail.content.desc = selectedEmail.content.desc or ""
+        selectedEmail.content.html = selectedEmail.content.html or ""
+
         textEntryDesc = oop.CreatePanel("v_textentry",panel):ad(function(self,w,h) self:setSize(listEmails:W(),100):setPos(0,h - self:H()) end)
         textEntryDesc:SetMultiline(true)
         function textEntryDesc:OnChange()
+            if not selectedEmail or not selectedEmail.content then return end
             selectedEmail.content.desc = self:GetValue()
             selectedEmail.descMark = markup.Parse(selectedEmail.content.desc,listEmails:W())
         end
 
         textEntryTitle = oop.CreatePanel("v_textentry",panel):ad(function(self,w,h) self:setSize(listEmails:W(),30):setPos(0,h - textEntryDesc:H() - self:H()) end)
-        function textEntryTitle:OnChange() selectedEmail.content.name = self:GetValue() end
+        function textEntryTitle:OnChange()
+            if not selectedEmail or not selectedEmail.content then return end
+            selectedEmail.content.name = self:GetValue()
+        end
         
         htmlPage:PerformLayout()
 
@@ -331,10 +344,17 @@ function Page.Open(frame)
         textEntryHTML:SetMultiline(true)
         textEntryHTML:SetTabbingDisabled(false)
         function textEntryHTML:Update()
-            textEntryHTML:SetValue(Page.DevMode == "html" and selectedEmail.content.html or tostring(util.TableToJSON(selectedEmail.content.items or {},true)))
+            local content = selectedEmail and selectedEmail.content
+            if not content then
+                textEntryHTML:SetValue("")
+                return
+            end
+
+            textEntryHTML:SetValue(Page.DevMode == "html" and (content.html or "") or tostring(util.TableToJSON(content.items or {},true)))
         end
 
         function textEntryHTML:OnChange()
+            if not selectedEmail or not selectedEmail.content then return end
             if Page.DevMode == "html" then
                 selectedEmail.content.html = self:GetValue()
                 htmlPage:Open(selectedEmail)

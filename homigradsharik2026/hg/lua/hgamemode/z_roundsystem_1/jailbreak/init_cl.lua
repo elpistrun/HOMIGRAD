@@ -110,7 +110,7 @@ function Page.Open(frame)
     local html = oop.CreatePanel("v_html",page):ad(function(self,w,h) self:setSize(w,h) end)
     
     function html:Paint()
-        if not html.open then html.open = true html:OpenURL("https://homigrad.com/wiki/gamemodes/special/jailbreak/?lang=ru") end
+        if not html.open then html.open = true html:OpenURL("https://kopigrad.com/wiki/gamemodes/special/jailbreak/?lang=ru") end
     end
 
     --
@@ -124,13 +124,13 @@ end
 event.Add("Setup World","Rules Construct",function()
     if roundActiveName ~= "level_construct" then return end
 
-    timer.Simple(0,function() scoreboard:Open():SelectPage(13) end)
+    timer.Simple(0,function() scoreboard:Open() scoreboard:OpenPage(13) end)
 end)
 
 event.Add("Setup World","Rules Jailbreak",function()
     if roundActiveName ~= "level_jailbreak" then return end
 
-    timer.Simple(0,function() scoreboard:Open():SelectPage(13) end)
+    timer.Simple(0,function() scoreboard:Open() scoreboard:OpenPage(13) end)
 end)
 
 function Level:ScoreboradInventoruUICreate(frame,force)

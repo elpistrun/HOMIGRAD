@@ -1,3 +1,5 @@
+if not inventoryGame then return end
+
 inventoryGame.SyncItem = inventoryGame.SyncItem or function(item)
     if not item or not IsValid(item.inv) then return false end
 

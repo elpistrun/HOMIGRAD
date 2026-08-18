@@ -12,6 +12,7 @@ SWEP.ParticleColor = Color(75,65,65)
 SWEP.SndEet = SndEatWater
 
 SWEP.StaminaAdd = 30
+SWEP.BreathRelief = 100
 
 SWEP.dwsPos = Vector(0,-25,0)
 SWEP.dwiSelectPos = Vector(0,-90,0)

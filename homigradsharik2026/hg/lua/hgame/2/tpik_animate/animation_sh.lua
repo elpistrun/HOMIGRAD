@@ -41,8 +41,8 @@ function SWEP:ApplySequenceOnWorldModel(wm)
     
     local index,cycle = self:GetSequenceIndex(self.sequenceObject,wm)
 
-    wm:SetSequence(index)
-    wm:SetCycle(cycle)
+    wm:SetSequence(index or 0)
+    wm:SetCycle(tonumber(cycle) or 0)
 end
 
 SWEP:Event_Add("SequenceStart","Instant Play World Model",function(self,sequenceObject,oldSequenceObject)
@@ -115,7 +115,14 @@ function SWEP:ConstructAnimationAction(name,funcAction,funcConstruct,writeEye)
             if CLIENT then
                 return false,"call cmd.sendLoad on client is error"
             else
-                self.sequenceObject.DoNetLoad(self.sequenceObject,cmd)
+                local sequenceObject = self.sequenceObject
+
+                if not sequenceObject or sequenceObject.name != name then
+                    sequenceObject = self:PlayAnimationAction({name = name,start = cmd.startTime})
+                end
+
+                if not sequenceObject.DoNetLoad then return false,"animation DoNetLoad is null" end
+                sequenceObject:DoNetLoad(cmd)
 
                 return true
             end
@@ -129,6 +136,16 @@ function SWEP:ConstructAnimationAction(name,funcAction,funcConstruct,writeEye)
     self:WaitConstructAnimation(name,function(self,anm)
         anm.className = "base_load"
         anm.SendLoad = SendLoad
+
+        -- Server-side half of a load marker. It was missing completely: the
+        -- client sent sendLoad, but the server sequence had no DoNetLoad and
+        -- therefore reload/melee actions stayed endless or never applied.
+        anm.DoNetLoad = function(object,cmd)
+            if object.m_load then return end
+
+            if object.Load then object:Load(cmd) end
+            object.m_load = true
+        end
 
         if funcConstruct then funcConstruct(self,anm) end
     end)
@@ -178,7 +195,10 @@ SWEP.ParseAnimationFlags.fire = {
     flags = {
         fire = true,
         dontChangeTPIKLerp = true,
-        canFight = true
+        canFight = true,
+        -- Holding RMB must survive the short fire/fire_last sequence. Without
+        -- this explicit flag IsScope briefly became false on every shot.
+        canScope = true
     },
     list = {
         "fire","fire_last","fire_empty","fire1","fire2"

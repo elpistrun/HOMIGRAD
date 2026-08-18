@@ -218,7 +218,7 @@ hook.Add("Think","Show server",function()
 
                 function browser:Request(callback)
                     HTTP({
-                        url = "https://homigrad.com/status/count",
+                        url = "https://kopigrad.com/status/count",
                         method = "GET",
                         success = function(code,body,headers)
                             HomigradServerWait = nil

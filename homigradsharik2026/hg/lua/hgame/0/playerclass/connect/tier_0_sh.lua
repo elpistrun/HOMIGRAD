@@ -17,13 +17,15 @@ net.Receive("setupclass",function()
     local ply = net.ReadEntity()
     if not IsValid(ply) then return end--lol
 
-    ply.PlayerClassName = net.ReadString()
-    ply.PlayerClassNameOld = net.ReadString()
+    local class = net.ReadString()
+    local oldClassName = net.ReadString()
+    ply.PlayerClassName = class ~= "" and class or nil
+    ply.PlayerClassNameOld = oldClassName ~= "" and oldClassName or nil
 
     old = classList[ply.PlayerClassNameOld]
     if old and old.Off then old.Off(ply) end
     
-    ply:PlayerClassEvent("On")
+    if ply.PlayerClassName then ply:PlayerClassEvent("On") end
 end)
 
 event.Add("PreCalcView","PlayerClass",function(ply,vec,ang,fov,znear,zfar)

@@ -52,7 +52,7 @@ function Panel.Open(frame)
         if value then inventoryGame.SetSelectItem() end
     end
 
-    local ScoreboradInventoruUICreate = levelActive.ScoreboradInventoruUICreate
+    local ScoreboradInventoruUICreate = levelActive and levelActive.ScoreboradInventoruUICreate
 
     if ScoreboradInventoruUICreate then levelActive:ScoreboradInventoruUICreate(frame) end
 end

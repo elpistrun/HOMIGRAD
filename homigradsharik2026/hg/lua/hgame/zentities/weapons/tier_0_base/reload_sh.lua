@@ -1,6 +1,21 @@
 local SWEP = oop.Get("hg_wep")
 if not SWEP then return end
 
+-- The inventory part that used to receive unloaded cartridges is absent from
+-- this addon set. Keep every weapon/revolver unload path valid; integrations
+-- can override this method later and return the rounds to an inventory.
+function SWEP:UnLoadAmmo(count)
+    count = math.max(math.floor(tonumber(count) or 0),0)
+    if count == 0 then return 0 end
+
+    if SERVER and inventoryGame and inventoryGame.OnWeaponUnloadAmmo then
+        local handled = inventoryGame.OnWeaponUnloadAmmo(self,self:GetOwner(),self:GetAmmoClass(),count)
+        if handled != nil then return handled end
+    end
+
+    return count
+end
+
 if CLIENT then
     local cmd = {}
 
@@ -269,7 +284,7 @@ local Chamber = function(self,anim)
 
         local self = object.parent
 
-        if self.chamber then self:SetClip1(math.max(self:Clip1() - 1,0)) end
+        if object.wasChamber then self:SetClip1(math.max(self:Clip1() - 1,0)) end
 
         if self:Clip1() > 0 then
             self:SetChamber(true)
@@ -284,7 +299,17 @@ end
 
 SWEP:ConstructAnimationAction("chamber",
 function(self,cmd)
-    self:PlayAnimationAction(self:IsGateDelay() and self.AnimationList.chamber_out and "chamber_out" or "chamber")
+    local sequenceObject = self:PlayAnimationAction(self:IsGateDelay() and self.AnimationList.chamber_out and "chamber_out" or "chamber")
+    sequenceObject.wasChamber = self.chamber == true
+
+    -- Record the accepted manual cycle immediately on both realms. The active
+    -- sequence still blocks firing until the bolt/pump animation reaches its
+    -- end, while a delayed/lost load marker can no longer leave chamber=false.
+    if not self.Primary.ChamberAuto and self:Clip1() > 0 then
+        self:SetChamber(true)
+        self:SetGateDelay(false)
+    end
+
     if SERVER then self:SyncAnimation() end
 
     return true

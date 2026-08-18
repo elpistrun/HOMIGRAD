@@ -18,6 +18,20 @@ cvars.permamentConsoleVars = {
 }
 
 function cvars.SetPermament(name,def)
+    -- Garry's Mod blocks these commands when Lua calls RunConsoleCommand.
+    -- pcall cannot suppress the engine-side warning, so do not register an
+    -- enforcement callback for commands which cannot legally be executed.
+    local blocked = {
+        mp_decals = true,
+        dsp_enhance_stereo = true,
+        snd_surround_speakers = true,
+        dsp_slow_cpu = true
+    }
+    if blocked[name] then
+        cvars.permamentConsoleVars[name] = nil
+        return false
+    end
+
     cvars.permamentConsoleVars[name] = def
     
     cvars.AddChangeCallback(name,function() pcall(RunConsoleCommand,name,def) end,"go back")

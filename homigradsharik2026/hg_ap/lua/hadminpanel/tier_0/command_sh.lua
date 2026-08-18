@@ -75,7 +75,95 @@ function adminPanel.commandCreate(cmdName,func,typeCommand,desc,category)
     return cmd,success
 end
 
-if SERVER then return end
+if SERVER then
+    util.AddNetworkString("adminpanel_command")
+
+    local nextCommand = {}
+
+    net.Receive("adminpanel_command",function(_,ply)
+        if not IsValid(ply) then return end
+        if (nextCommand[ply] or 0) > CurTime() then return end
+        nextCommand[ply] = CurTime() + 0.1
+
+        local cmdName = net.ReadString()
+        local args = net.ReadTable()
+        local cmd = commands[cmdName]
+
+        if #cmdName > 64 or TypeID(args) != TYPE_TABLE or table.Count(args) > 32 then return end
+        if not cmd then
+            ply:ChatPrint("[HG admin] Неизвестная команда: " .. tostring(cmdName))
+            return
+        end
+
+        if not ply:HasSuccess("command_" .. cmdName) then
+            ply:ChatPrint("[HG admin] Недостаточно прав для команды " .. tostring(cmdName))
+            return
+        end
+
+        for key,value in pairs(args) do
+            if TypeID(key) != TYPE_NUMBER then return end
+            local valueType = TypeID(value)
+            if valueType == TYPE_TABLE then
+                for _,v in pairs(value) do
+                    if TypeID(v) != TYPE_STRING and TypeID(v) != TYPE_NUMBER then return end
+                end
+            elseif valueType != TYPE_STRING and valueType != TYPE_NUMBER and valueType != TYPE_BOOL then return end
+            if valueType == TYPE_STRING and #value > 512 then return end
+        end
+
+        if cmd.func then
+            local success,err = xpcall(cmd.func,debug.traceback,ply,unpack(args))
+            if not success then
+                ErrorNoHalt("[HG admin] " .. tostring(cmdName) .. ": " .. tostring(err) .. "\n")
+                ply:ChatPrint("[HG admin] Ошибка выполнения команды; подробности в серверной консоли.")
+            end
+            return
+        end
+
+        local external = concommand.GetTable()["ulx_cmd"]
+        if external then
+            local externalArgs = {cmdName}
+            for i,value in ipairs(args) do externalArgs[#externalArgs + 1] = tostring(value) end
+            external(ply,"ulx_cmd",externalArgs,table.concat(externalArgs," "))
+        else
+            ply:ChatPrint("[HG admin] Серверный обработчик команды " .. tostring(cmdName) .. " отсутствует.")
+        end
+    end)
+
+    -- Several legacy hg_ap pages still submit through `ulx_cmd`. This addon
+    -- snapshot has no ULX backend, so route it into the same local registry.
+    concommand.Add("ulx_cmd",function(ply,_,args)
+        if not IsValid(ply) or not ply:IsPlayer() then return end
+        if (nextCommand[ply] or 0) > CurTime() then return end
+        nextCommand[ply] = CurTime() + 0.1
+
+        local cmdName = tostring(args[1] or "")
+        table.remove(args,1)
+
+        local cmd = commands[cmdName]
+        if not cmd or not cmd.func then
+            ply:ChatPrint("[HG admin] Серверный обработчик команды " .. cmdName .. " отсутствует.")
+            return
+        end
+
+        if not ply:HasSuccess("command_" .. cmdName) then
+            ply:ChatPrint("[HG admin] Недостаточно прав для команды " .. cmdName)
+            return
+        end
+
+        local success,err = xpcall(cmd.func,debug.traceback,ply,unpack(args))
+        if not success then
+            ErrorNoHalt("[HG admin] " .. cmdName .. ": " .. tostring(err) .. "\n")
+            ply:ChatPrint("[HG admin] Ошибка выполнения; подробности в серверной консоли.")
+        end
+    end)
+
+    hook.Add("PlayerDisconnected","HG Admin Command Cleanup",function(ply)
+        nextCommand[ply] = nil
+    end)
+
+    return
+end
 
 hook.Add("OnPlayerChat","AdminPanel",function(ply,text)
     if ply != LocalPlayer() or string.sub(text,1,1) != "!" then return end
@@ -85,11 +173,15 @@ hook.Add("OnPlayerChat","AdminPanel",function(ply,text)
     table.remove(args,1)
 
     local cmd = commands[cmdName]
-    if not cmd or not cmd.func then return end
+    if not cmd then return end
 
     if not ply:HasSuccess("command_" .. cmdName) then return end
 
-    cmd.func(unpack(args))
+    if cmd.func then
+        cmd.func(unpack(args))
+    end
+
+    adminPanel.commandSendToServer(cmdName,args)
 end)
 
 concommand.Add("ulx",function(cmd,ply,args,line)

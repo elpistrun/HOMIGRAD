@@ -24,10 +24,10 @@ local function createPanel(callback)
 	end
 
 	function frametos:DrawOver(w,h)
-		draw.SimpleText("HOMIGRAD.COM","HS.45",w/2,h * 0.05,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
+		draw.SimpleText("KOPIGRAD.COM","HS.45",w/2,h * 0.05,nil,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 	end
 
-	html:OpenURL("https://homigrad.com/wiki/rules_publish_content?get&lang=ru")
+	html:OpenURL("https://kopigrad.com/wiki/rules_publish_content?get&lang=ru")
 
 	html:AddFunction("lua","out",function(str)
 		html:RunJavascript("document.body.innerHTML = `" .. Homigrad_PrePareHTML(str) .. "`")
@@ -44,7 +44,7 @@ local function createPanel(callback)
 
 	function buttYes:OnClick()
 		if not html.Ready then
-			gui.OpenURL("https://homigrad.com/wiki/rules_publish_content?lang=ru")
+			gui.OpenURL("https://kopigrad.com/wiki/rules_publish_content?lang=ru")
 		end
 
         frametos:Remove()

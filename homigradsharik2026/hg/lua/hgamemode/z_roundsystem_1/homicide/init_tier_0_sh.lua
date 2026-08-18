@@ -56,6 +56,7 @@ function Level:Sync(data)
     for i,ply in pairs(data.inoccent or empty) do ply.roleCT = true end
 
     roundType = data.roundType
+    homicidePolicePhase = data.policePhase == true
 end
 
 function Level:GetTeamName(ply)
@@ -77,10 +78,9 @@ function Level:HUDPaint_Spectate(spec)
 end
 
 function Level:Scoreboard_Status(ply)
-    local lply = LocalPlayer()
-    if lply.roleT or not lply:Alive() then return end
-
-    return "unknown",ScoreboardSpec
+    -- Alive/dead/spectator is already resolved by GetAliveStatus. Returning
+    -- "unknown" here made every living Homicide player look unidentified.
+    return
 end
 
 Level.LoadScreenTime = 6
@@ -120,7 +120,7 @@ function Level:HUDPaint(k)
     local time = math.Round(roundTimeStart + roundTime - CurTime())
     if time > 0 then
         local acurcetime = string.FormattedTime(time,"%02i:%02i")
-        acurcetime = L("police_come",acurcetime)
+        acurcetime = L(homicidePolicePhase and "police_operation_end" or "police_come",acurcetime)
 
         draw.SimpleText(acurcetime,"H.18",ScrW() / 2,ScrH() - 25,showRoundInfoColor,TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
     end

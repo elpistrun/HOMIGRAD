@@ -33,7 +33,8 @@ ammoGame.Reg({
 
             if util.IsHumanoid(hitEntity) then
                 if SERVER then
-                    hitEntity = hitEntity:GetController() or hitEntity
+                    local ctrl = hitEntity:GetController()
+                    hitEntity = IsValid(ctrl) and ctrl or hitEntity
 
                     local attacker = self.attacker
                     local weapon = self.weapon
